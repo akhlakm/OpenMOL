@@ -170,9 +170,8 @@ def process_last_section(MOL, section, lines, format):
 
 		for t in items:
 			MOL['atom_type'].append(t)
-
-		unique_atom_types = set(MOL['atom_type'])
-		MOL['unique_atom_types'] = list(unique_atom_types)
+			if t not in MOL['unique_atom_types']:
+				MOL['unique_atom_types'].append(t)
 
 	elif section == 'BOND_FORCE_CONSTANT':
 		for i in items:
