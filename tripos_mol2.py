@@ -249,3 +249,34 @@ def write(MOL, mol2_file):
 
 	fp.close()
 	print('%s written.' %mol2_file)
+
+
+def build(MOL):
+
+	if not MOL['type']:
+		MOL['type'] = 'SMALL'
+
+	if not MOL['charge_type']:
+		MOL['charge_type'] = 'USER_CHARGES'
+
+	if len(MOL['atom_resname']) == 0:
+		for r, st in enumerate(MOL['residue_start']):
+			res = MOL['residue_name'][r]
+
+			end = MOL['no_atoms']
+			if len(MOL['residue_start']) > r + 1:
+				end = MOL['residue_start'][r+1]
+
+			for i in range(st, end):
+				MOL['atom_resid'].append(r)
+				MOL['atom_resname'].append(res)
+
+	if len(MOL['bond_type']) == 0:
+		for i in range(MOL['no_bonds']):
+			MOL['bond_type'].append("1")
+
+	if len(MOL['residue_type']) == 0:
+		for i in range(MOL['no_residues']):
+			MOL['residue_type'].append("****")
+
+	return MOL 
