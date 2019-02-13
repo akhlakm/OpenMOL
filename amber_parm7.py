@@ -198,6 +198,10 @@ def process_last_section(MOL, section, lines, format):
 		for i in items:
 			MOL['FF_dihed_periodicity'].append(float(i))
 
+	elif section == 'DIHEDRAL_PHASE':
+		for i in items:
+			MOL['FF_dihed_phase'].append(float(i))
+
 	elif section == 'LENNARD_JONES_ACOEF':
 		for i in items:
 			MOL['FF_lj_acoeff'].append(float(i))
