@@ -106,7 +106,6 @@ def check_bonds_ok(MOL):
 
 	conditions_ok = [
 		MOL['no_bonds'] == len(MOL['bond_from']),
-		MOL['no_bonds'] == len(MOL['bond_type']),
 		MOL['no_bonds'] == len(MOL['bond_to']),
 	]
 
