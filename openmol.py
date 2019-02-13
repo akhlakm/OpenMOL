@@ -13,12 +13,12 @@ def initialize():
 	MOL['type'] = None
 	MOL['charge_type'] = None
 
-	MOL['no_atoms'] = None
-	MOL['no_bonds'] = None
-	MOL['no_atom_types'] = None
-	MOL['no_residues'] = None
-	MOL['no_angles'] = None
-	MOL['no_dihedrals'] = None
+	MOL['no_atoms'] = 0
+	MOL['no_bonds'] = 0
+	MOL['no_atom_types'] = 0
+	MOL['no_residues'] = 0
+	MOL['no_angles'] = 0
+	MOL['no_dihedrals'] = 0
 	MOL['unique_atom_types'] = []
 
 	MOL['atom_name'] = []
