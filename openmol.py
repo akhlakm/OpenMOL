@@ -49,6 +49,13 @@ def initialize():
 	MOL['residue_end'] = []
 	MOL['residue_type'] = []
 
+	MOL['box_x'] = 0.0
+	MOL['box_y'] = 0.0
+	MOL['box_z'] = 0.0
+	MOL['box_alpha'] = 0.0
+	MOL['box_beta'] = 0.0
+	MOL['box_gamma'] = 0.0
+
 	return MOL
 
 
