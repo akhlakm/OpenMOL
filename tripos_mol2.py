@@ -14,6 +14,26 @@ def initialize():
 
 	return MOL
 
+def check_last_section(section):
+	if section == 'ATOM':
+		if not openmol.check_atoms_ok(MOL):
+			return False
+		else:
+			unique_atom_types = set(MOL['atom_type'])
+			MOL['unique_atom_types'] = list(unique_atom_types)
+
+	elif section == 'BOND':
+		if not openmol.check_bonds_ok(MOL):
+			return False
+
+	elif section == 'SUBSTRUCTURE':
+		if not openmol.check_residues_ok(MOL):
+			return False
+
+	print('OK.')
+	return True
+
+
 def read(mol2_file):
 	MOL = initialize()
 
@@ -22,7 +42,6 @@ def read(mol2_file):
 	section = None
 
 	# variables for sanity checking
-	last_section = None
 	type_ok = False
 	charge_ok = False
 	name_ok = False
@@ -52,32 +71,8 @@ def read(mol2_file):
 				print('Invalid MOL2 [line %d]:\n%s' %(line_no, line))
 				return None
 			else:
-				last_section = section
-
-				# check before jumping into new section
-
-				if last_section == 'MOLECULE':
-					print('OK.')
-
-				if last_section == 'ATOM':
-					if not openmol.check_atoms_ok(MOL):
-						return None
-					else:
-						unique_atom_types = set(MOL['atom_type'])
-						MOL['unique_atom_types'] = list(unique_atom_types)
-						print('OK.')
-
-				if last_section == 'BOND':
-					if not openmol.check_bonds_ok(MOL):
-						return None
-					else:
-						print('OK.')
-
-				if last_section == 'SUBSTRUCTURE':
-					if not openmol.check_residues_ok(MOL):
-						return None
-					else:
-						print('OK.')
+				if not check_last_section(section):
+					return False
 
 				section = parts[1]
 				print('Reading %s ...' %section, end=' ')
@@ -192,6 +187,9 @@ def read(mol2_file):
 			# unknown section
 			# silence is golden
 			pass
+
+	if not check_last_section(section):
+		return False
 
 	print('Done.')
 	return MOL
