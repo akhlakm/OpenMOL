@@ -3,8 +3,6 @@
 import json
 
 def initialize():
-	global MOL
-
 	MOL = {}
 
 	MOL['title'] = None
