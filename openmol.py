@@ -9,6 +9,7 @@ def initialize():
 
 	MOL['title'] = None
 	MOL['description'] = ""
+	MOL['source_format'] = None
 	MOL['type'] = None
 	MOL['charge_type'] = None
 
