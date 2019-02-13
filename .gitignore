@@ -1,0 +1,8 @@
+
+/nohup.out
+
+__pycache__/*
+
+*.mol2
+
+*.json
