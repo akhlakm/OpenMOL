@@ -6,3 +6,9 @@ __pycache__/*
 *.mol2
 
 *.json
+
+*.log
+
+*.prmtop
+
+*.rst7

@@ -39,6 +39,11 @@ def initialize():
 	MOL['angle_b'] = []
 	MOL['angle_c'] = []
 
+	MOL['dihed_a'] = []
+	MOL['dihed_b'] = []
+	MOL['dihed_c'] = []
+	MOL['dihed_d'] = []
+
 	MOL['residue_name'] = []
 	MOL['residue_start'] = []
 	MOL['residue_end'] = []
