@@ -195,6 +195,8 @@ def read(mol2_file):
 	return MOL
 
 def write(MOL, mol2_file):
+	MOL = dict(initialize(), **MOL)
+
 	fp = open(mol2_file, 'w+')
 	fp.write('@<TRIPOS>MOLECULE\n')
 	molecstr = 	"{title}\n" \
