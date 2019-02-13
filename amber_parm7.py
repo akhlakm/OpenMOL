@@ -61,7 +61,7 @@ def process_last_section(MOL, section, lines, format):
 		MOL['no_atoms'] = MOL['PARM_NATOM']
 		MOL['no_bonds'] = MOL['PARM_NBONA'] + MOL['PARM_NBONH']
 		MOL['no_angles'] = MOL['PARM_NTHETH'] + MOL['PARM_MTHETA']
-		MOL['no_dihedrals'] = MOL['PARM_NPHIH'] + MOL['PARM_MPHIA']
+		MOL['no_diheds'] = MOL['PARM_NPHIH'] + MOL['PARM_MPHIA']
 		MOL['no_residues'] = MOL['PARM_NRES']
 		MOL['no_atom_types'] = MOL['PARM_NATYP']
 
