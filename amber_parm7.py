@@ -17,6 +17,23 @@ def initialize():
 	MOL['atom_type_index'] = []
 	MOL['atom_no_excluded'] = []
 
+	# FF parameters
+	MOL['FF_bond_k'] = []
+	MOL['FF_bond_eq'] = []
+	MOL['bond_ff_index'] = []
+
+	MOL['FF_angle_k'] = []
+	MOL['FF_angle_eq'] = []
+	MOL['angle_ff_index'] = []
+
+	MOL['FF_dihed_k'] = []
+	MOL['FF_dihed_phase'] = []
+	MOL['FF_dihed_periodicity'] = []
+	MOL['dihed_ff_index'] = []
+
+	MOL['FF_lj_acoeff'] = []
+	MOL['FF_lj_bcoeff'] = []
+
 	for i in pointers:
 		MOL['PARM_%s' %i] = 0
 
@@ -117,17 +134,21 @@ def process_last_section(MOL, section, lines, format):
 		for i in range(0, len(items), 3):
 			index0 = int(abs(int(items[i]))/3)
 			index1 = int(abs(int(items[i+1]))/3)
+			index2 = int(items[i+2]) - 1
 			MOL['bond_from'].append(index0)
 			MOL['bond_to'].append(index1)
+			MOL['bond_ff_index'].append(index2)
 
 	elif section in ['ANGLES_INC_HYDROGEN', 'ANGLES_WITHOUT_HYDROGEN']:
 		for i in range(0, len(items), 4):
 			index0 = int(abs(int(items[i]))/3)
 			index1 = int(abs(int(items[i+1]))/3)
 			index2 = int(abs(int(items[i+2]))/3)
+			index3 = int(items[i+3]) - 1
 			MOL['angle_a'].append(index0)
 			MOL['angle_b'].append(index1)
 			MOL['angle_c'].append(index2)
+			MOL['angle_ff_index'].append(index3)
 
 	elif section in ['DIHEDRALS_INC_HYDROGEN', 'DIHEDRALS_WITHOUT_HYDROGEN']:
 		for i in range(0, len(items), 5):
@@ -135,10 +156,12 @@ def process_last_section(MOL, section, lines, format):
 			index1 = int(abs(int(items[i+1]))/3)
 			index2 = int(abs(int(items[i+2]))/3)
 			index3 = int(abs(int(items[i+3]))/3)
+			index4 = int(items[i+4]) - 1
 			MOL['dihed_a'].append(index0)
 			MOL['dihed_b'].append(index1)
 			MOL['dihed_c'].append(index2)
 			MOL['dihed_d'].append(index3)
+			MOL['dihed_ff_index'].append(index4)
 
 	elif section == 'AMBER_ATOM_TYPE':
 		if len(items) != MOL['no_atoms']:
@@ -150,6 +173,39 @@ def process_last_section(MOL, section, lines, format):
 
 		unique_atom_types = set(MOL['atom_type'])
 		MOL['unique_atom_types'] = list(unique_atom_types)
+
+	elif section == 'BOND_FORCE_CONSTANT':
+		for i in items:
+			MOL['FF_bond_k'].append(float(i))
+
+	elif section == 'BOND_EQUIL_VALUE':
+		for i in items:
+			MOL['FF_bond_eq'].append(float(i))
+
+	elif section == 'ANGLE_FORCE_CONSTANT':
+		for i in items:
+			MOL['FF_angle_k'].append(float(i))
+
+	elif section == 'ANGLE_EQUIL_VALUE':
+		for i in items:
+			MOL['FF_angle_eq'].append(float(i))
+
+	elif section == 'DIHEDRAL_FORCE_CONSTANT':
+		for i in items:
+			MOL['FF_dihed_k'].append(float(i))
+
+	elif section == 'DIHEDRAL_PERIODICITY':
+		for i in items:
+			MOL['FF_dihed_periodicity'].append(float(i))
+
+	elif section == 'LENNARD_JONES_ACOEF':
+		for i in items:
+			MOL['FF_lj_acoeff'].append(float(i))
+
+	elif section == 'LENNARD_JONES_BCOEF':
+		for i in items:
+			MOL['FF_lj_bcoeff'].append(float(i))
+
 
 	print('OK.')
 	return True
