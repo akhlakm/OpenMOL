@@ -52,9 +52,9 @@ def initialize():
 	MOL['box_x'] = 0.0
 	MOL['box_y'] = 0.0
 	MOL['box_z'] = 0.0
-	MOL['box_alpha'] = 0.0
-	MOL['box_beta'] = 0.0
-	MOL['box_gamma'] = 0.0
+	MOL['box_alpha'] = 90.0
+	MOL['box_beta'] = 90.0
+	MOL['box_gamma'] = 90.0
 
 	return MOL
 
