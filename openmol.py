@@ -14,7 +14,7 @@ def initialize():
 	MOL['no_atom_types'] = 0
 	MOL['no_residues'] = 0
 	MOL['no_angles'] = 0
-	MOL['no_dihedrals'] = 0
+	MOL['no_diheds'] = 0
 	MOL['unique_atom_types'] = []
 
 	MOL['atom_name'] = []
