@@ -8,7 +8,7 @@ def initialize():
 	return MOL 
 
 def build(MOL):
-	MOL = dict(lmp.build(MOL), **MOL)
+	MOL = lmp.build(MOL)
 	MOL = dict(initialize(), **MOL)
 
 	if len(MOL['atom_qm']) != MOL['no_atoms']:
