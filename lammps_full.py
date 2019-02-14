@@ -12,12 +12,15 @@ def initialize():
 	MOL['FF_bond_k'] = []
 	MOL['FF_angle_k'] = []
 	MOL['FF_dihed_k'] = []
+	MOL['FF_lj_epsilon'] = []
+	MOL['FF_lj_sigma'] = []
 	return MOL 
 
 
 def build(MOL):
 	MOL = dict(initialize(), **MOL)
 
+	# build residue id and name list
 	if len(MOL['atom_resname']) == 0:
 		for r, st in enumerate(MOL['residue_start']):
 			res = MOL['residue_name'][r]
@@ -30,11 +33,12 @@ def build(MOL):
 				MOL['atom_resid'].append(r)
 				MOL['atom_resname'].append(res)
 
-	# use parm7 data
+	# using parm7 data
 	MOL['no_bond_types'] = len(MOL['FF_bond_k'])
 	MOL['no_angle_types'] = len(MOL['FF_angle_k'])
 	MOL['no_dihed_types'] = len(MOL['FF_dihed_k'])
 
+	# if we have individual atom masses list, build type's masses
 	if len(MOL['unique_atom_mass']) == 0 and len(MOL['atom_mass']):
 		for unique_atom in MOL['unique_atom_types']:
 			i = MOL['atom_type'].index(unique_atom)
@@ -42,12 +46,37 @@ def build(MOL):
 
 	if len(MOL['unique_atom_mass']) != MOL['no_atom_types']:
 		print('LAMMPS Build Error: fail to build mass list, length mismatch.')
-		return False
 
+	# if we have A, B coeffs, build epsilon, sigma
+	if len(MOL['FF_lj_acoeff']) and len(MOL['FF_lj_sigma']) != len(MOL['unique_atom_types']):
+		for i in range(MOL['no_atom_types']):
+			A = MOL['FF_lj_acoeff'][i]
+			B = MOL['FF_lj_bcoeff'][i]
+
+			if A == 0.0:
+				eps = 0.0
+			else:
+				eps = 0.25 * B**2 / A
+
+			if B == 0.0:
+				sigma = 0.0
+			else:
+				sigma = (A / B)**(1.0/6.0)
+
+			MOL['FF_lj_epsilon'].append(eps)
+			MOL['FF_lj_sigma'].append(sigma)
+
+	if len(MOL['FF_lj_epsilon']) != MOL['no_atom_types'] or len(MOL['FF_lj_sigma']) != MOL['no_atom_types']:
+		print('LAMMPS Build Error: fail to build pair coeffs, length mismatch.')
+
+	MOL['_lammps_built'] = True
 	return MOL 
 
 
 def write(MOL, data_file):
+	if not MOL.get('_lammps_built', False):
+		print('Warning: MOL not getting build() for LAMMPS likely to fail while writing.')
+
 	fp = open(data_file, 'w+')
 	
 	fp.write("%s\n\n" %MOL['title'])
@@ -70,11 +99,14 @@ def write(MOL, data_file):
 	# mass
 	fp.write("\nMasses\n\n")
 	for i in range(MOL['no_atom_types']):
-		fp.write('%3d  %6.3f\n' %(i+1, MOL['unique_atom_mass'][i]))
+		fp.write('%3d  %6.3f   # %s\n'
+			%(i+1, MOL['unique_atom_mass'][i], MOL['unique_atom_types'][i]))
 
 	# pair coeff
 	fp.write("\nPair Coeffs\n\n")
-
+	for i in range(MOL['no_atom_types']):
+		fp.write('%3d  %10.4f   %10.4f   # %s\n'
+			%(i+1, MOL['FF_lj_epsilon'][i], MOL['FF_lj_sigma'][i], MOL['unique_atom_types'][i]))
 
 	# bond coeff
 	fp.write("\nBond Coeffs\n\n")
@@ -91,8 +123,8 @@ def write(MOL, data_file):
 	# dihed coeffs
 	fp.write("\nDihedral Coeffs\n\n")
 	for i in range(MOL['no_dihed_types']):
-		fp.write('%3d  %6.3f  %6.3f  %d\n'
-			%(i+1, MOL['FF_dihed_k'][i], math.cos(MOL['FF_dihed_phase'][i]), int(MOL['FF_dihed_periodicity'][i])))
+		fp.write('%3d  %6.3f  %d  %d\n'
+			%(i+1, MOL['FF_dihed_k'][i], int(math.cos(MOL['FF_dihed_phase'][i])), int(MOL['FF_dihed_periodicity'][i])))
 
 	# atoms
 	fp.write("\nAtoms\n\n")
@@ -157,9 +189,6 @@ def write(MOL, data_file):
 		}
 		dihedstr =	"{id:>7d}  {type:>3d}  {a:>5d}  {b:>5d}  {c:>5d}  {d:>5d} \n"
 		fp.write(dihedstr.format(**dihed))
-
-
-	# impropers
 
 
 	fp.close()
