@@ -70,8 +70,14 @@ def build(MOL):
 				MOL['FF_lj_epsilon'].append(eps)
 				MOL['FF_lj_sigma'].append(sigma)
 
-	if len(MOL['FF_lj_epsilon']) != MOL['no_atom_types'] or len(MOL['FF_lj_sigma']) != MOL['no_atom_types']:
+	if len(MOL['FF_lj_epsilon']) != MOL['PARM_NTYPES'] or len(MOL['FF_lj_sigma']) != MOL['PARM_NTYPES']:
 		print('-- LAMMPS Build Error: fail to build pair coeffs, length mismatch.')
+
+	# build indices of types
+	MOL['atom_type_index'] = []
+	for i in range(MOL['no_atoms']):
+		atom_type = MOL['atom_type'][i]
+		MOL['atom_type_index'].append(MOL['unique_atom_types'].index(atom_type))
 
 	MOL['_lammps_built'] = True
 	return MOL 
@@ -164,13 +170,14 @@ class Writer(openmol.Writer):
 				'x': self.MOL['atom_x'][i],
 				'y': self.MOL['atom_y'][i],
 				'z': self.MOL['atom_z'][i],
-				'type': self.MOL['pair_ff_index'][i] + 1,
+				'typeid': self.MOL['atom_type_index'][i] + 1,
 				'resid': self.MOL['atom_resid'][i] + 1,
-				'charge': self.MOL['atom_q'][i]
+				'charge': self.MOL['atom_q'][i],
+				'type': self.MOL['atom_type'][i]
 			}
 
-			atomstr =	"{id:>7d} {resid:>4d} {type:>3} {charge:>11.6f}  " \
-						"{x:>7.4f}  {y:>7.4f}  {z:>7.4f} \n"
+			atomstr =	"{id:>7d} {resid:>4d} {typeid:>3} {charge:>11.6f}  " \
+						"{x:>7.4f}  {y:>7.4f}  {z:>7.4f} # {type}\n"
 
 			self.fp.write(atomstr.format(**atom))
 
