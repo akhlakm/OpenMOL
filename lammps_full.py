@@ -12,6 +12,9 @@ def initialize():
 	MOL['no_dihed_types'] = 0
 	MOL['unique_atom_mass'] = []
 
+	MOL['parm7_lj_epsilon'] = []
+	MOL['parm7_lj_sigma'] = []
+
 	return MOL 
 
 
@@ -45,8 +48,8 @@ def build(MOL):
 	if len(MOL['unique_atom_mass']) != MOL['no_atom_types']:
 		print('-- LAMMPS Build Error: fail to build mass list, length mismatch.')
 
-	# use PARM7: if we have A, B coeffs, build epsilon, sigma
-	if len(MOL['parm7_lj_acoeff']) and len(MOL['FF_lj_sigma']) != len(MOL['unique_atom_types']):
+	# use PARM7: if we have A, B coeffs, build epsilon, sigma of parm7
+	if len(MOL['parm7_lj_acoeff']) and len(MOL['parm7_lj_sigma']) != len(MOL['unique_atom_types']):
 		if not MOL.get('parm7_lj_index', False):
 			print('-- LAMMPS Build Error: non bonded parm7 indices not found.')
 
@@ -67,17 +70,36 @@ def build(MOL):
 				else:
 					sigma = (A / B)**(1.0/6.0)
 
-				MOL['FF_lj_epsilon'].append(eps)
-				MOL['FF_lj_sigma'].append(sigma)
+				MOL['parm7_lj_epsilon'].append(eps)
+				MOL['parm7_lj_sigma'].append(sigma)
 
-	if len(MOL['FF_lj_epsilon']) != MOL['PARM_NTYPES'] or len(MOL['FF_lj_sigma']) != MOL['PARM_NTYPES']:
-		print('-- LAMMPS Build Error: fail to build pair coeffs, length mismatch.')
+	if len(MOL['parm7_lj_epsilon']) != MOL['PARM_NTYPES'] or len(MOL['parm7_lj_sigma']) != MOL['PARM_NTYPES']:
+		print('-- LAMMPS Build Error: fail to build parm7 lj coeffs, length mismatch.')
 
 	# build indices of types
-	MOL['atom_type_index'] = []
-	for i in range(MOL['no_atoms']):
-		atom_type = MOL['atom_type'][i]
-		MOL['atom_type_index'].append(MOL['unique_atom_types'].index(atom_type))
+	if len(MOL['atom_type_index']) != MOL['no_atoms']:
+		MOL['atom_type_index'] = []
+		for i in range(MOL['no_atoms']):
+			atom_type = MOL['atom_type'][i]
+			MOL['atom_type_index'].append(MOL['unique_atom_types'].index(atom_type))
+
+	if len(MOL['atom_type_index']) != MOL['no_atoms']:
+		print('-- LAMMPS Build Error: fail to build atom type indices, length mismatch.')
+
+	# assuming we have parm7 epsilon sigma lists built, build the lj params of each type
+	if len(MOL['FF_lj_epsilon']) != MOL['no_atom_types'] or len(MOL['FF_lj_sigma']) != MOL['no_atom_types']:
+		MOL['FF_lj_epsilon'] = []
+		MOL['FF_lj_sigma'] = []
+		for i in range(MOL['no_atom_types']):
+			# get the first atom of this type
+			aix = MOL['atom_type_index'].index(i)
+			# get parm7 pair ff index of that atom
+			pfx = MOL['pair_ff_index'][aix]
+			MOL['FF_lj_epsilon'].append(MOL['parm7_lj_epsilon'][pfx])
+			MOL['FF_lj_sigma'].append(MOL['parm7_lj_sigma'][pfx])
+
+	if len(MOL['FF_lj_epsilon']) != MOL['no_atom_types'] or len(MOL['FF_lj_sigma']) != MOL['no_atom_types']:
+		print('-- LAMMPS Build Error: fail to build pair coeffs, length mismatch.')
 
 	MOL['_lammps_built'] = True
 	return MOL 
@@ -137,7 +159,7 @@ class Writer(openmol.Writer):
 
 	def pair_coeffs(self):
 		self.fp.write("\nPair Coeffs\n\n")
-		for i in range(self.MOL['PARM_NTYPES']):
+		for i in range(self.MOL['no_atom_types']):
 			self.fp.write('%3d  %10.4f   %10.4f   # %s\n'
 				%(i+1, self.MOL['FF_lj_epsilon'][i], self.MOL['FF_lj_sigma'][i], self.MOL['unique_atom_types'][i]))
 
