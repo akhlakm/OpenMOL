@@ -11,11 +11,7 @@ def initialize():
 	MOL['no_angle_types'] = 0
 	MOL['no_dihed_types'] = 0
 	MOL['unique_atom_mass'] = []
-	MOL['FF_bond_k'] = []
-	MOL['FF_angle_k'] = []
-	MOL['FF_dihed_k'] = []
-	MOL['FF_lj_epsilon'] = []
-	MOL['FF_lj_sigma'] = []
+
 	return MOL 
 
 

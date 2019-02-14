@@ -17,20 +17,6 @@ def initialize():
 	MOL['atom_type_index'] = []
 	MOL['atom_no_excluded'] = []
 
-	# FF parameters
-	MOL['FF_bond_k'] = []
-	MOL['FF_bond_eq'] = []
-	MOL['bond_ff_index'] = []
-
-	MOL['FF_angle_k'] = []
-	MOL['FF_angle_eq'] = []
-	MOL['angle_ff_index'] = []
-
-	MOL['FF_dihed_k'] = []
-	MOL['FF_dihed_phase'] = []
-	MOL['FF_dihed_periodicity'] = []
-	MOL['dihed_ff_index'] = []
-
 	MOL['parm7_lj_acoeff'] = []
 	MOL['parm7_lj_bcoeff'] = []
 	MOL['parm7_lj_index'] = []

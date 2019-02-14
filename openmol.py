@@ -56,6 +56,23 @@ def initialize():
 	MOL['box_beta'] = 90.0
 	MOL['box_gamma'] = 90.0
 
+	# FF parameters
+	MOL['FF_lj_epsilon'] = []
+	MOL['FF_lj_sigma'] = []
+
+	MOL['FF_bond_k'] = []
+	MOL['FF_bond_eq'] = []
+	MOL['bond_ff_index'] = []
+
+	MOL['FF_angle_k'] = []
+	MOL['FF_angle_eq'] = []
+	MOL['angle_ff_index'] = []
+
+	MOL['FF_dihed_k'] = []
+	MOL['FF_dihed_phase'] = []
+	MOL['FF_dihed_periodicity'] = []
+	MOL['dihed_ff_index'] = []
+
 	return MOL
 
 
