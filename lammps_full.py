@@ -178,8 +178,15 @@ class Writer(openmol.Writer):
 	def dihed_coeffs(self):
 		self.fp.write("\nDihedral Coeffs\n\n")
 		for i in range(self.MOL['no_dihed_types']):
-			self.fp.write('%3d  %6.3f  %d  %d\n'
-				%(i+1, self.MOL['FF_dihed_k'][i], int(math.cos(self.MOL['FF_dihed_phase'][i])), int(self.MOL['FF_dihed_periodicity'][i])))
+			phase = int(math.cos(self.MOL['FF_dihed_phase'][i]))
+
+			if phase == 0:
+				phase = 1
+			else: phase = -1
+
+			period = int(self.MOL['FF_dihed_periodicity'][i])
+			self.fp.write('%3d  %6.3f  %2d  %d\n'
+				%(i+1, self.MOL['FF_dihed_k'][i], phase, period))
 
 	def atoms(self):
 		self.fp.write("\nAtoms # atom_style_full\n\n")
