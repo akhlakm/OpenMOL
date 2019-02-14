@@ -1,6 +1,8 @@
 import math
 import openmol
 
+BOX_BUFFER = 1.0	# A
+
 def initialize():
 	MOL = openmol.initialize()
 	MOL['source_format'] = "LAMMPS FULL"
@@ -101,6 +103,30 @@ def write(MOL, data_file):
 	fp.write("%d dihedral types\n\n" %MOL['no_dihed_types'])
 
 	# box info
+	if MOL['box_x'] == 0.0:
+		xlo = min(MOL['atom_x']) - BOX_BUFFER
+		xhi = max(MOL['atom_x']) + BOX_BUFFER
+	else:
+		xlo = 0.0
+		xhi = MOL['box_x']
+
+	if MOL['box_y'] == 0.0:
+		ylo = min(MOL['atom_y']) - BOX_BUFFER
+		yhi = max(MOL['atom_y']) + BOX_BUFFER
+	else:
+		ylo = 0.0
+		yhi = MOL['box_y']
+
+	if MOL['box_z'] == 0.0:
+		zlo = min(MOL['atom_z']) - BOX_BUFFER
+		zhi = max(MOL['atom_z']) + BOX_BUFFER
+	else:
+		zlo = 0.0
+		zhi = MOL['box_z']
+
+	fp.write("%8.4f  %8.4f    xlo  xhi\n" %(xlo, xhi))
+	fp.write("%8.4f  %8.4f    ylo  yhi\n" %(ylo, yhi))
+	fp.write("%8.4f  %8.4f    zlo  zhi\n" %(zlo, zhi))
 
 	# mass
 	fp.write("\nMasses\n\n")
