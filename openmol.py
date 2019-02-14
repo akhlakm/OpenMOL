@@ -62,6 +62,7 @@ def initialize():
 	MOL['atom_vz'] = []
 	MOL['atom_q'] = []
 	MOL['atom_type'] = []
+	MOL['atom_type_index'] = []
 	MOL['atom_resname'] = []
 	MOL['atom_resid'] = []
 	MOL['atom_mass'] = []
@@ -96,7 +97,7 @@ def initialize():
 	MOL['FF_lj_epsilon'] = []
 	MOL['FF_lj_sigma'] = []
 	MOL['pair_ff_index'] = []
-	
+
 	MOL['FF_bond_k'] = []
 	MOL['FF_bond_eq'] = []
 	MOL['bond_ff_index'] = []

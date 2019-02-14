@@ -88,7 +88,7 @@ class Writer(openmol.Writer):
 		self.fp.write("%d atoms\n" %self.MOL['no_atoms'])
 		self.fp.write("%d bonds\n" %self.MOL['no_bonds'])
 		self.fp.write("%d angles\n" %self.MOL['no_angles'])
-		self.fp.write("%d diherdrals\n" %self.MOL['no_diheds'])
+		self.fp.write("%d dihedrals\n" %self.MOL['no_diheds'])
 		self.fp.write("0 impropers\n\n")	# todo: fix it
 
 	def types(self):
