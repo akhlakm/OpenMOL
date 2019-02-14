@@ -126,7 +126,7 @@ def load_json(json_file):
 	with open(json_file, 'r') as fp:
 		MOL = json.load(fp)
 
-	MOL['json_file'] = json_file
+	MOL['source_json'] = json_file
 	print('Load OK: %s' %json_file)
 
 	return AttrDict(MOL)
