@@ -1,11 +1,13 @@
 import openmol
 import lammps_full as lmp 
 
+
 def initialize():
 	MOL = openmol.initialize()
 	MOL['source_format'] = "LAMMPS QMAG"
 	MOL['atom_qm'] = []
 	return MOL 
+
 
 def build(MOL):
 	MOL = lmp.build(MOL)
@@ -17,12 +19,14 @@ def build(MOL):
 	MOL['_lammps_qmag_built'] = True
 	return MOL
 
+
 def qm_for_index(MOL, ix, qm):
 	if not MOL.get('_lammps_qmag_built', False):
 		MOL = build(MOL)
 
 	MOL['atom_qm'][ix] = qm
 	return MOL
+
 
 def print(MOL):
 	if not MOL.get('atom_qm', False):
@@ -48,6 +52,7 @@ def print(MOL):
 						"{charge:>11.6f} {qm:>7.4f}\n"
 
 			print(atomstr.format(**atom))
+
 
 def write(MOL, data_file):
 	if not MOL.get('_lammps_qmag_built', False):
