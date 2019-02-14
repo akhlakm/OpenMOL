@@ -19,7 +19,7 @@ def build(MOL):
 
 def qm_for_index(MOL, ix, qm):
 	if not MOL.get('_lammps_qmag_built', False):
-		print('-- Warning: MOL not build() for QMAG likely to fail while writing.')
+		MOL = build(MOL)
 
 	MOL['atom_qm'][ix] = qm
 	return MOL
