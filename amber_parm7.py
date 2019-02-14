@@ -31,9 +31,9 @@ def initialize():
 	MOL['FF_dihed_periodicity'] = []
 	MOL['dihed_ff_index'] = []
 
-	MOL['FF_lj_acoeff'] = []
-	MOL['FF_lj_bcoeff'] = []
-	MOL['FF_lj_parm_index'] = []
+	MOL['parm7_lj_acoeff'] = []
+	MOL['parm7_lj_bcoeff'] = []
+	MOL['parm7_lj_index'] = []
 
 	for i in pointers:
 		MOL['PARM_%s' %i] = 0
@@ -122,7 +122,7 @@ def process_last_section(MOL, section, lines, format):
 			return False
 
 		for ix in items:
-			MOL['FF_lj_parm_index'].append(int(ix))
+			MOL['parm7_lj_index'].append(int(ix))
 
 	elif section == 'RESIDUE_LABEL':
 		if len(items) != MOL['no_residues']:
@@ -213,11 +213,11 @@ def process_last_section(MOL, section, lines, format):
 
 	elif section == 'LENNARD_JONES_ACOEF':
 		for i in items:
-			MOL['FF_lj_acoeff'].append(float(i))
+			MOL['parm7_lj_acoeff'].append(float(i))
 
 	elif section == 'LENNARD_JONES_BCOEF':
 		for i in items:
-			MOL['FF_lj_bcoeff'].append(float(i))
+			MOL['parm7_lj_bcoeff'].append(float(i))
 
 
 	print('OK')
