@@ -51,8 +51,8 @@ def build(MOL):
 			print('-- LAMMPS Build Error: non bonded parm indices not found.')
 
 		else:
-			for i in range(MOL['no_atom_types']):
-				j = MOL['parm7_lj_index'][i * (MOL['no_atom_types'] + 1)] - 1
+			for i in range(MOL['PARM_NTYPES']):
+				j = MOL['parm7_lj_index'][i * (MOL['PARM_NTYPES'] + 1)] - 1
 
 				A = MOL['parm7_lj_acoeff'][j]
 				B = MOL['parm7_lj_bcoeff'][j]
@@ -131,7 +131,7 @@ class Writer(openmol.Writer):
 
 	def pair_coeffs(self):
 		self.fp.write("\nPair Coeffs\n\n")
-		for i in range(self.MOL['no_atom_types']):
+		for i in range(self.MOL['PARM_NTYPES']):
 			self.fp.write('%3d  %10.4f   %10.4f   # %s\n'
 				%(i+1, self.MOL['FF_lj_epsilon'][i], self.MOL['FF_lj_sigma'][i], self.MOL['unique_atom_types'][i]))
 

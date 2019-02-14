@@ -103,8 +103,8 @@ def process_last_section(MOL, section, lines, format):
 
 	# lj parm index, needed to find epsilon, sigma
 	elif section == 'NONBONDED_PARM_INDEX':
-		if len(items) != MOL['no_atom_types']**2:
-			print('-- Error: no_atom_types and NONBONDED_PARM_INDEX section mismatch')
+		if len(items) != MOL['PARM_NTYPES']**2:
+			print('-- Error: PARM_NTYPES and NONBONDED_PARM_INDEX section mismatch')
 			return False
 
 		for ix in items:
