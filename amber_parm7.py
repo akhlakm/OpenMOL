@@ -33,6 +33,7 @@ def initialize():
 
 	MOL['FF_lj_acoeff'] = []
 	MOL['FF_lj_bcoeff'] = []
+	MOL['FF_lj_parm_index'] = []
 
 	for i in pointers:
 		MOL['PARM_%s' %i] = 0
@@ -113,6 +114,15 @@ def process_last_section(MOL, section, lines, format):
 
 		for ex in items:
 			MOL['atom_no_excluded'].append(int(ex))
+
+	# lj parm index, needed to find epsilon, sigma
+	elif section == 'NONBONDED_PARM_INDEX':
+		if len(items) != MOL['no_atom_types']**2:
+			print('Error: no_atom_types and NONBONDED_PARM_INDEX section mismatch')
+			return False
+
+		for ix in items:
+			MOL['FF_lj_parm_index'].append(int(ix))
 
 	elif section == 'RESIDUE_LABEL':
 		if len(items) != MOL['no_residues']:

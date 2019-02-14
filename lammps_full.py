@@ -47,24 +47,30 @@ def build(MOL):
 	if len(MOL['unique_atom_mass']) != MOL['no_atom_types']:
 		print('LAMMPS Build Error: fail to build mass list, length mismatch.')
 
-	# if we have A, B coeffs, build epsilon, sigma
+	# use PARM7: if we have A, B coeffs, build epsilon, sigma
 	if len(MOL['FF_lj_acoeff']) and len(MOL['FF_lj_sigma']) != len(MOL['unique_atom_types']):
-		for i in range(MOL['no_atom_types']):
-			A = MOL['FF_lj_acoeff'][i]
-			B = MOL['FF_lj_bcoeff'][i]
+		if not MOL.get('FF_lj_parm_index', False):
+			print('LAMMPS Build Error: non bonded parm indices not found.')
 
-			if A == 0.0:
-				eps = 0.0
-			else:
-				eps = 0.25 * B**2 / A
+		else:
+			for i in range(MOL['no_atom_types']):
+				j = MOL['FF_lj_parm_index'][i * (MOL['no_atom_types'] + 1)] - 1
 
-			if B == 0.0:
-				sigma = 0.0
-			else:
-				sigma = (A / B)**(1.0/6.0)
+				A = MOL['FF_lj_acoeff'][j]
+				B = MOL['FF_lj_bcoeff'][j]
 
-			MOL['FF_lj_epsilon'].append(eps)
-			MOL['FF_lj_sigma'].append(sigma)
+				if A == 0.0:
+					eps = 0.0
+				else:
+					eps = 0.25 * B**2 / A
+
+				if B == 0.0:
+					sigma = 0.0
+				else:
+					sigma = (A / B)**(1.0/6.0)
+
+				MOL['FF_lj_epsilon'].append(eps)
+				MOL['FF_lj_sigma'].append(sigma)
 
 	if len(MOL['FF_lj_epsilon']) != MOL['no_atom_types'] or len(MOL['FF_lj_sigma']) != MOL['no_atom_types']:
 		print('LAMMPS Build Error: fail to build pair coeffs, length mismatch.')
