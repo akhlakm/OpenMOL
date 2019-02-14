@@ -66,7 +66,7 @@ def write_json(MOL, json_file, compress=False):
 		else:
 			json.dump(MOL, fp, indent=4)
 
-	print('%s written' %json_file)
+	print('Write OK: %s' %json_file)
 
 
 def load_json(json_file):
@@ -74,7 +74,7 @@ def load_json(json_file):
 		MOL = json.load(fp)
 
 	MOL['json_file'] = json_file
-	print('%s loaded' %json_file)
+	print('Load OK: %s' %json_file)
 
 	return MOL
 
@@ -94,7 +94,7 @@ def check_atoms_ok(MOL):
 	]
 
 	if any(conditions_fail) or not all(conditions_ok):
-		print('Error: Summary and atom attribute list mismatch.')
+		print('-- Error: Summary and atom attribute list mismatch.')
 		return False
 
 	return True
@@ -110,7 +110,7 @@ def check_bonds_ok(MOL):
 	]
 
 	if any(conditions_fail) or not all(conditions_ok):
-		print('Error: Summary and bond attribute list mismatch.')
+		print('-- Error: Summary and bond attribute list mismatch.')
 		return False
 
 	return True
@@ -126,7 +126,7 @@ def check_residues_ok(MOL):
 	]
 
 	if any(conditions_fail) or not all(conditions_ok):
-		print('Error: Summary and residue attribute list mismatch.')
+		print('-- Error: Summary and residue attribute list mismatch.')
 		return False
 
 	return True

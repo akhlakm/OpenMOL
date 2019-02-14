@@ -68,7 +68,7 @@ def read(mol2_file):
 			parts = line.split('>')
 
 			if len(parts) < 2:
-				print('Invalid MOL2 [line %d]:\n%s' %(line_no, line))
+				print('-- Error: Invalid MOL2 [line %d]:\n%s' %(line_no, line))
 				return None
 			else:
 				if not check_last_section(section):
@@ -122,7 +122,7 @@ def read(mol2_file):
 			parts = line.split()
 
 			if len(parts) < 6:
-				print('Invalid MOL2 [line %d]:\n%s' %(line_no, line))
+				print('-- Error: Invalid MOL2 [line %d]:\n%s' %(line_no, line))
 				return None
 
 			MOL['atom_name'].append(parts[1])
@@ -148,7 +148,7 @@ def read(mol2_file):
 			parts = line.split()
 
 			if len(parts) < 4:
-				print('Invalid MOL2 [line %d]:\n%s' %(line_no, line))
+				print('-- Error: Invalid MOL2 [line %d]:\n%s' %(line_no, line))
 				return None
 
 			MOL['bond_from'].append(int(parts[1]) - 1)
@@ -162,7 +162,7 @@ def read(mol2_file):
 			parts = line.split()
 
 			if len(parts) < 3:
-				print('Invalid MOL2 [line %d]:\n%s' %(line_no, line))
+				print('-- Error: Invalid MOL2 [line %d]:\n%s' %(line_no, line))
 				return None
 
 			MOL['residue_name'].append(parts[1])
@@ -195,7 +195,8 @@ def read(mol2_file):
 	return MOL
 
 def write(MOL, mol2_file):
-	MOL = dict(initialize(), **MOL)
+	if not MOL.get('_mol2_built', False):
+		print('-- Warning: MOL not getting build() for MOL2 format likely to fail while writing.')
 
 	fp = open(mol2_file, 'w+')
 	fp.write('@<TRIPOS>MOLECULE\n')
@@ -250,10 +251,11 @@ def write(MOL, mol2_file):
 		fp.write(resstr.format(**subst))
 
 	fp.close()
-	print('%s written.' %mol2_file)
+	print('Write OK: %s' %mol2_file)
 
 
 def build(MOL):
+	MOL = dict(initialize(), **MOL)
 
 	if not MOL['type']:
 		MOL['type'] = 'SMALL'
@@ -281,4 +283,5 @@ def build(MOL):
 		for i in range(MOL['no_residues']):
 			MOL['residue_type'].append("****")
 
+	MOL['_mol2_built'] = True
 	return MOL 

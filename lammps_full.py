@@ -47,12 +47,12 @@ def build(MOL):
 			MOL['unique_atom_mass'].append(MOL['atom_mass'][i])
 
 	if len(MOL['unique_atom_mass']) != MOL['no_atom_types']:
-		print('LAMMPS Build Error: fail to build mass list, length mismatch.')
+		print('-- LAMMPS Build Error: fail to build mass list, length mismatch.')
 
 	# use PARM7: if we have A, B coeffs, build epsilon, sigma
 	if len(MOL['FF_lj_acoeff']) and len(MOL['FF_lj_sigma']) != len(MOL['unique_atom_types']):
 		if not MOL.get('FF_lj_parm_index', False):
-			print('LAMMPS Build Error: non bonded parm indices not found.')
+			print('-- LAMMPS Build Error: non bonded parm indices not found.')
 
 		else:
 			for i in range(MOL['no_atom_types']):
@@ -75,7 +75,7 @@ def build(MOL):
 				MOL['FF_lj_sigma'].append(sigma)
 
 	if len(MOL['FF_lj_epsilon']) != MOL['no_atom_types'] or len(MOL['FF_lj_sigma']) != MOL['no_atom_types']:
-		print('LAMMPS Build Error: fail to build pair coeffs, length mismatch.')
+		print('-- LAMMPS Build Error: fail to build pair coeffs, length mismatch.')
 
 	MOL['_lammps_built'] = True
 	return MOL 
@@ -83,7 +83,7 @@ def build(MOL):
 
 def write(MOL, data_file):
 	if not MOL.get('_lammps_built', False):
-		print('Warning: MOL not getting build() for LAMMPS likely to fail while writing.')
+		print('-- Warning: MOL not getting build() for LAMMPS likely to fail while writing.')
 
 	fp = open(data_file, 'w+')
 	
@@ -224,4 +224,4 @@ def write(MOL, data_file):
 
 
 	fp.close()
-	print('%s written.' %data_file)
+	print('Write OK: %s' %data_file)

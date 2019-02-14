@@ -53,7 +53,7 @@ def process_last_section(MOL, section, lines, format):
 
 	elif section == 'POINTERS':
 		if len(items) > len(pointers):
-			print('\nWarning: unknown PRMTOP pointer found. Ignoring ...', end=' ')
+			print('\n-- Warning: unknown PRMTOP pointer found. Ignoring ...', end=' ')
 
 		for i, v in enumerate(items):
 			if i < len(pointers):
@@ -68,7 +68,7 @@ def process_last_section(MOL, section, lines, format):
 
 	elif section == 'ATOM_NAME':
 		if len(items) != MOL['no_atoms']:
-			print('Error: no_atoms and ATOM_NAME section mismatch')
+			print('-- Error: no_atoms and ATOM_NAME section mismatch')
 			return False
 
 		for name in items:
@@ -76,7 +76,7 @@ def process_last_section(MOL, section, lines, format):
 
 	elif section == 'CHARGE':
 		if len(items) != MOL['no_atoms']:
-			print('Error: no_atoms and CHARGE section mismatch')
+			print('-- Error: no_atoms and CHARGE section mismatch')
 			return False
 
 		for q in items:
@@ -85,7 +85,7 @@ def process_last_section(MOL, section, lines, format):
 
 	elif section == 'ATOMIC_NUMBER':
 		if len(items) != MOL['no_atoms']:
-			print('Error: no_atoms and ATOMIC_NUMBER section mismatch')
+			print('-- Error: no_atoms and ATOMIC_NUMBER section mismatch')
 			return False
 
 		for A in items:
@@ -93,7 +93,7 @@ def process_last_section(MOL, section, lines, format):
 
 	elif section == 'MASS':
 		if len(items) != MOL['no_atoms']:
-			print('Error: no_atoms and MASS section mismatch')
+			print('-- Error: no_atoms and MASS section mismatch')
 			return False
 
 		for m in items:
@@ -101,7 +101,7 @@ def process_last_section(MOL, section, lines, format):
 
 	elif section == 'ATOM_TYPE_INDEX':
 		if len(items) != MOL['no_atoms']:
-			print('Error: no_atoms and ATOM_TYPE_INDEX section mismatch')
+			print('-- Error: no_atoms and ATOM_TYPE_INDEX section mismatch')
 			return False
 
 		for t in items:
@@ -109,7 +109,7 @@ def process_last_section(MOL, section, lines, format):
 
 	elif section == 'NUMBER_EXCLUDED_ATOMS':
 		if len(items) != MOL['no_atoms']:
-			print('Error: no_atoms and NUMBER_EXCLUDED_ATOMS section mismatch')
+			print('-- Error: no_atoms and NUMBER_EXCLUDED_ATOMS section mismatch')
 			return False
 
 		for ex in items:
@@ -118,7 +118,7 @@ def process_last_section(MOL, section, lines, format):
 	# lj parm index, needed to find epsilon, sigma
 	elif section == 'NONBONDED_PARM_INDEX':
 		if len(items) != MOL['no_atom_types']**2:
-			print('Error: no_atom_types and NONBONDED_PARM_INDEX section mismatch')
+			print('-- Error: no_atom_types and NONBONDED_PARM_INDEX section mismatch')
 			return False
 
 		for ix in items:
@@ -126,7 +126,7 @@ def process_last_section(MOL, section, lines, format):
 
 	elif section == 'RESIDUE_LABEL':
 		if len(items) != MOL['no_residues']:
-			print('Error: no_residues and RESIDUE_LABEL section mismatch')
+			print('-- Error: no_residues and RESIDUE_LABEL section mismatch')
 			return False
 
 		for i in items:
@@ -134,7 +134,7 @@ def process_last_section(MOL, section, lines, format):
 
 	elif section == 'RESIDUE_POINTER':
 		if len(items) != MOL['no_residues']:
-			print('Error: no_residues and RESIDUE_POINTER section mismatch')
+			print('-- Error: no_residues and RESIDUE_POINTER section mismatch')
 			return False
 
 		for i in items:
@@ -175,7 +175,7 @@ def process_last_section(MOL, section, lines, format):
 
 	elif section == 'AMBER_ATOM_TYPE':
 		if len(items) != MOL['no_atoms']:
-			print('Error: no_atoms and AMBER_ATOM_TYPE section mismatch')
+			print('-- Error: no_atoms and AMBER_ATOM_TYPE section mismatch')
 			return False
 
 		for t in items:
@@ -220,7 +220,7 @@ def process_last_section(MOL, section, lines, format):
 			MOL['FF_lj_bcoeff'].append(float(i))
 
 
-	print('OK.')
+	print('OK')
 	return True
 
 def read_prmtop(prmtop):
@@ -246,7 +246,7 @@ def read_prmtop(prmtop):
 		if line.startswith('%VERSION'):
 			parts = line.split()
 			if len(parts) < 2:
-				print('Invalid PRMTOP [line %d]:\n%s' %(line_no, line))
+				print('-- Error: Invalid PRMTOP [line %d]:\n%s' %(line_no, line))
 				return None
 			else:
 				MOL['parm_version_string'] = ' '.join(parts[1:])
@@ -255,7 +255,7 @@ def read_prmtop(prmtop):
 		elif line.startswith('%FLAG'):
 			parts = line.split()
 			if len(parts) < 2:
-				print('Invalid PRMTOP [line %d]:\n%s' %(line_no, line))
+				print('-- Error: Invalid PRMTOP [line %d]:\n%s' %(line_no, line))
 				return None
 			else:
 				if not process_last_section(MOL, section, section_lines, section_format):
@@ -269,7 +269,7 @@ def read_prmtop(prmtop):
 		elif line.startswith('%FORMAT'):
 			parts = line.split('(')
 			if len(parts) < 2:
-				print('Invalid PRMTOP [line %d]:\n%s' %(line_no, line))
+				print('-- Error: Invalid PRMTOP [line %d]:\n%s' %(line_no, line))
 				return None
 			else:
 				section_format = parts[1][:-1]
@@ -280,7 +280,7 @@ def read_prmtop(prmtop):
 	if not process_last_section(MOL, section, section_lines, section_format):
 		return False
 
-	print('Done.')
+	print('Reading Done')
 	return MOL
 
 def read_rst7(MOL, rst_file):
@@ -310,13 +310,13 @@ def read_rst7(MOL, rst_file):
 				MOL['temp'] = float(parts[2])
 
 			if no_atoms != MOL['no_atoms']:
-				print('Error: RST7 no_atoms mismatch.')
+				print('-- Error: RST7 no_atoms mismatch.')
 				return False
 		else:
 			items += line.split()
 
 	if len(items) < no_atoms * 3:
-		print('Error: RST7 no_atoms, coordinate items mismatch.')
+		print('-- Error: RST7 no_atoms, coordinate items mismatch.')
 		return False
 
 	print('Reading coordinates ...', end=' ')
@@ -326,7 +326,7 @@ def read_rst7(MOL, rst_file):
 		MOL['atom_y'].append(float(items[i+1]))
 		MOL['atom_z'].append(float(items[i+2]))
 
-	print('OK.')
+	print('OK')
 
 	if len(items) >= no_atoms*6:
 		print('Reading velocities ...', end=' ')
@@ -336,7 +336,7 @@ def read_rst7(MOL, rst_file):
 			MOL['atom_vy'].append(float(items[i+1]))
 			MOL['atom_vz'].append(float(items[i+2]))
 
-		print('OK.')
+		print('OK')
 
 	box_size_conditions = [
 		len(items) == no_atoms*3 + 3,
@@ -352,9 +352,9 @@ def read_rst7(MOL, rst_file):
 		MOL['box_y'] = float(parts[1])
 		MOL['box_z'] = float(parts[2])
 
-		print('OK.')
+		print('OK')
 	else:
-		print('No PBC box information found.')
+		print('-- No PBC box information found.')
 
 	box_angle_conditions = [
 		len(items) == no_atoms*3 + 6,
@@ -368,9 +368,9 @@ def read_rst7(MOL, rst_file):
 		MOL['box_beta'] = float(parts[4])
 		MOL['box_gamma'] = float(parts[5])
 
-		print('OK.')
+		print('OK')
 
-	print('Done.')
+	print('Reading Done')
 	return MOL
 
 def read(prmtop, rst7):
