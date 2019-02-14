@@ -10,11 +10,23 @@ def initialize():
 def build(MOL):
 	MOL = dict(lmp.build(MOL), **MOL)
 	MOL = dict(initialize(), **MOL)
+
+	if len(MOL['atom_qm']) != MOL['no_atoms']:
+		MOL['atom_qm'] = [0.0 for i in range(MOL['no_atoms'])]
+
+	MOL['_lammps_qmag_built'] = True
+	return MOL
+
+def qm_for_index(MOL, ix, qm):
+	if not MOL.get('_lammps_qmag_built', False):
+		print('-- Warning: MOL not build() for QMAG likely to fail while writing.')
+
+	MOL['atom_qm'][ix] = qm
 	return MOL
 
 def write(MOL, data_file):
-	if not MOL.get('_lammps_built', False):
-		print('-- Warning: MOL not build() for LAMMPS likely to fail while writing.')
+	if not MOL.get('_lammps_qmag_built', False):
+		print('-- Warning: MOL not build() for QMAG likely to fail while writing.')
 
 	if not MOL.get('atom_qm', False):
 		print('-- Error: No qm data found for the atoms.')
