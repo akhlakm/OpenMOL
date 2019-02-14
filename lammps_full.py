@@ -119,9 +119,9 @@ class Writer(openmol.Writer):
 			zlo = 0.0
 			zhi = self.MOL['box_z']
 
-		self.fp.write("%8.4f  %8.4f    xlo  xhi\n" %(xlo, xhi))
-		self.fp.write("%8.4f  %8.4f    ylo  yhi\n" %(ylo, yhi))
-		self.fp.write("%8.4f  %8.4f    zlo  zhi\n" %(zlo, zhi))
+		self.fp.write("%8.4f %8.4f xlo xhi\n" %(xlo, xhi))
+		self.fp.write("%8.4f %8.4f ylo yhi\n" %(ylo, yhi))
+		self.fp.write("%8.4f %8.4f zlo zhi\n" %(zlo, zhi))
 
 	def masses(self):
 		self.fp.write("\nMasses\n\n")
