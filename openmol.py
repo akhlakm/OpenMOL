@@ -1,4 +1,40 @@
 import json
+import re
+
+def legal_key(strg, search=re.compile(r'^[a-zA-Z_][a-zA-Z_0-9]*$').search):
+	return bool(search(strg))
+
+class AttrDict(dict):
+	def __init__(self, d=None):
+		if type(d) == dict:
+			for k,v in d.items():
+				self.__setattr__(k, v)
+
+	def __getattr__(self, key):
+		return self[key]
+
+	def __setattr__(self, key, value):
+		self.__setitem__(key, value)
+
+	def __setitem__(self, key, value):
+		# do not allow any key from dict's namespace
+		if key in dir({}):
+			raise KeyError(key)
+
+		# key has to be string
+		if type(key) != str:
+			raise KeyError(key)
+
+		# key can't start with a digit, must be alphanumeric
+		# unscore allowed
+		if not legal_key(key):
+			raise KeyError(key)
+
+		super(AttrDict, self).__setitem__(key, value)
+
+	def __dir__(self):
+		return super().__dir__() + [str(k) for k in self.keys()]
+
 
 def initialize():
 	MOL = {}
@@ -73,7 +109,7 @@ def initialize():
 	MOL['FF_dihed_periodicity'] = []
 	MOL['dihed_ff_index'] = []
 
-	return MOL
+	return AttrDict(MOL)
 
 
 def write_json(MOL, json_file, compress=False):
@@ -93,7 +129,7 @@ def load_json(json_file):
 	MOL['json_file'] = json_file
 	print('Load OK: %s' %json_file)
 
-	return MOL
+	return AttrDict(MOL)
 
 
 def check_atoms_ok(MOL):
