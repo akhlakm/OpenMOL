@@ -24,6 +24,31 @@ def qm_for_index(MOL, ix, qm):
 	MOL['atom_qm'][ix] = qm
 	return MOL
 
+def print(MOL):
+	if not MOL.get('atom_qm', False):
+		print("-- No qm data set for MOL.")
+		return
+
+	if not MOL.get('_lammps_qmag_built', False):
+		print('-- Warning: MOL not build() for QMAG likely to fail while writing.')
+
+	for i, qm in enumerate(MOL['atom_qm']):
+		if qm != 0.0:
+			atom = {
+				'id' : i + 1,
+				'name': MOL['atom_name'][i],
+				'type': MOL['atom_type_index'][i] + 1,
+				'resid': MOL['atom_resid'][i] + 1,
+				'resname': MOL['atom_resname'][i],
+				'charge': MOL['atom_q'][i],
+				'qm': MOL['atom_qm']
+			}
+
+			atomstr =	"{id:>7d} {name:>3} {type:>3} {resid:>4d} {resname:>4d} " \
+						"{charge:>11.6f} {qm:>7.4f}\n"
+
+			print(atomstr.format(**atom))
+
 def write(MOL, data_file):
 	if not MOL.get('_lammps_qmag_built', False):
 		print('-- Warning: MOL not build() for QMAG likely to fail while writing.')
