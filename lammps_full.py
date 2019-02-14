@@ -220,7 +220,7 @@ class Writer(openmol.Writer):
 
 	def write(self):
 		if not self.MOL.get('_lammps_built', False):
-			print('-- Warning: self.MOL not getting build() for LAMMPS likely to fail while writing.')
+			print('-- Warning: MOL not getting build() for LAMMPS likely to fail while writing.')
 
 		self.title()
 		self.counts()
