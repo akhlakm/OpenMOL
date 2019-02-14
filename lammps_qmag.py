@@ -1,3 +1,5 @@
+import math
+
 import openmol
 import lammps_full as lmp 
 
@@ -28,7 +30,7 @@ def qm_for_index(MOL, ix, qm):
 	return MOL
 
 
-def print(MOL):
+def print_qm(MOL):
 	if not MOL.get('atom_qm', False):
 		print("-- No qm data set for MOL.")
 		return
@@ -45,11 +47,11 @@ def print(MOL):
 				'resid': MOL['atom_resid'][i] + 1,
 				'resname': MOL['atom_resname'][i],
 				'charge': MOL['atom_q'][i],
-				'qm': MOL['atom_qm']
+				'qm': MOL['atom_qm'][i]
 			}
 
-			atomstr =	"{id:>7d} {name:>3} {type:>3} {resid:>4d} {resname:>4d} " \
-						"{charge:>11.6f} {qm:>7.4f}\n"
+			atomstr = "{id:>7d} {name:>3} {type:>3} {resid:>4d} {resname:>4} " \
+					  "{charge:>11.6f} {qm:>7.4f}\n"
 
 			print(atomstr.format(**atom))
 
@@ -153,7 +155,7 @@ def write(MOL, data_file):
 			'type': MOL['atom_type_index'][i] + 1,
 			'resid': MOL['atom_resid'][i] + 1,
 			'charge': MOL['atom_q'][i],
-			'qm': MOL['atom_qm']
+			'qm': MOL['atom_qm'][i]
 		}
 
 		atomstr =	"{id:>7d} {resid:>4d} {type:>3} {charge:>11.6f}  " \
