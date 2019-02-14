@@ -48,7 +48,7 @@ def build(MOL):
 	# use PARM7: if we have A, B coeffs, build epsilon, sigma
 	if len(MOL['parm7_lj_acoeff']) and len(MOL['FF_lj_sigma']) != len(MOL['unique_atom_types']):
 		if not MOL.get('parm7_lj_index', False):
-			print('-- LAMMPS Build Error: non bonded parm indices not found.')
+			print('-- LAMMPS Build Error: non bonded parm7 indices not found.')
 
 		else:
 			for i in range(MOL['PARM_NTYPES']):
@@ -164,7 +164,7 @@ class Writer(openmol.Writer):
 				'x': self.MOL['atom_x'][i],
 				'y': self.MOL['atom_y'][i],
 				'z': self.MOL['atom_z'][i],
-				'type': self.MOL['atom_type_index'][i] + 1,
+				'type': self.MOL['pair_ff_index'][i] + 1,
 				'resid': self.MOL['atom_resid'][i] + 1,
 				'charge': self.MOL['atom_q'][i]
 			}

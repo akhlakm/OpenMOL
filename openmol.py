@@ -95,7 +95,8 @@ def initialize():
 	# FF parameters
 	MOL['FF_lj_epsilon'] = []
 	MOL['FF_lj_sigma'] = []
-
+	MOL['pair_ff_index'] = []
+	
 	MOL['FF_bond_k'] = []
 	MOL['FF_bond_eq'] = []
 	MOL['bond_ff_index'] = []

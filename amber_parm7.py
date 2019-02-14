@@ -14,7 +14,6 @@ def initialize():
 	MOL['source_format'] = "AMBER PARM7"
 
 	MOL['parm_version_string'] = None
-	MOL['atom_type_index'] = []
 	MOL['atom_no_excluded'] = []
 
 	MOL['parm7_lj_acoeff'] = []
@@ -85,13 +84,14 @@ def process_last_section(MOL, section, lines, format):
 		for m in items:
 			MOL['atom_mass'].append(float(m))
 
+	# lj_ff_index for each atom
 	elif section == 'ATOM_TYPE_INDEX':
 		if len(items) != MOL['no_atoms']:
 			print('-- Error: no_atoms and ATOM_TYPE_INDEX section mismatch')
 			return False
 
 		for t in items:
-			MOL['atom_type_index'].append(int(t) - 1)
+			MOL['pair_ff_index'].append(int(t) - 1)
 
 	elif section == 'NUMBER_EXCLUDED_ATOMS':
 		if len(items) != MOL['no_atoms']:
