@@ -198,8 +198,8 @@ class Writer(openmol.Writer):
 				'type': self.MOL['atom_type'][i]
 			}
 
-			atomstr =	"{id:>7d} {resid:>4d} {typeid:>3} {charge:>11.6f}  " \
-						"{x:>7.4f}  {y:>7.4f}  {z:>7.4f} # {type}\n"
+			atomstr =	"{id:>7d} {resid:>4d} {typeid:>3} {charge:>10.6f}  " \
+						"{x:>8.4f}  {y:>8.4f}  {z:>8.4f} # {type}\n"
 
 			self.fp.write(atomstr.format(**atom))
 

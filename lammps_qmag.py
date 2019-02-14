@@ -75,14 +75,15 @@ class Writer(lmp.Writer):
 				'x': self.MOL['atom_x'][i],
 				'y': self.MOL['atom_y'][i],
 				'z': self.MOL['atom_z'][i],
-				'type': self.MOL['atom_type_index'][i] + 1,
+				'typeid': self.MOL['atom_type_index'][i] + 1,
 				'resid': self.MOL['atom_resid'][i] + 1,
 				'charge': self.MOL['atom_q'][i],
+				'type': self.MOL['atom_type'][i],
 				'qm': self.MOL['atom_qm'][i]
 			}
 
-			atomstr =	"{id:>7d} {resid:>4d} {type:>3} {charge:>11.6f}  " \
-						"{x:>7.4f}  {y:>7.4f}  {z:>7.4f}   {qm:>7.4f}\n"
+			atomstr =	"{id:>7d} {resid:>4d} {typeid:>3} {charge:>10.6f}  " \
+						"{x:>8.4f}  {y:>8.4f}  {z:>8.4f}   {qm:>7.4f} # {type}\n"
 
 			self.fp.write(atomstr.format(**atom))
 
