@@ -1,6 +1,6 @@
 ﻿# OpenMOL
 
-OpenMOL is a python package that attempts to convert between popular molecular dynamics data file formats.
+OpenMOL is a python3 package that attempts to convert between popular molecular dynamics data file formats.
 
 ## Features
 
@@ -39,6 +39,8 @@ lmp.write()
 # save everything as openmol json file
 openmol.write_json(p, 'oleylamine.json')
 ```
+
+Please refer to the User Guide for more examples and details.
 
 ## License
 
