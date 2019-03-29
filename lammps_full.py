@@ -1,9 +1,15 @@
 import math
 import openmol
 
-BOX_BUFFER = 1.0	# A
+# If box info is not set in openmol object
+# we may need to estimate form the max and min value
+# of the coordinates. This is the buffer for that.
+BOX_BUFFER = 3.0	# A
 
 def initialize():
+	""" Initialize an openmol object with LAMMPS
+		specific items. """
+
 	MOL = openmol.initialize()
 	MOL['source_format'] = "LAMMPS FULL"
 
@@ -19,6 +25,11 @@ def initialize():
 
 
 def build(MOL):
+	""" Go through the openmol object and see if LAMMPS 
+		specific items are properly calculated. If not,
+		attemt to calculate them. """
+
+	# add/update with default lammps items
 	MOL = dict(initialize(), **MOL)
 
 	# build residue id and name list
@@ -26,7 +37,10 @@ def build(MOL):
 		for r, st in enumerate(MOL['residue_start']):
 			res = MOL['residue_name'][r]
 
+			# assume final atom is the last atom of residue
 			end = MOL['no_atoms']
+
+			# if there are more residues defined, update last atom
 			if len(MOL['residue_start']) > r + 1:
 				end = MOL['residue_start'][r+1]
 
@@ -49,11 +63,14 @@ def build(MOL):
 		print('-- LAMMPS Build Error: fail to build mass list, length mismatch.')
 
 	# use PARM7: if we have A, B coeffs, build epsilon, sigma of parm7
+	# @todo: move this to amber_parm7.py
 	if len(MOL['parm7_lj_acoeff']) and len(MOL['parm7_lj_sigma']) != len(MOL['unique_atom_types']):
 		if not MOL.get('parm7_lj_index', False):
 			print('-- LAMMPS Build Error: non bonded parm7 indices not found.')
 
 		else:
+			# Amber specific way of finding out these values
+			# See http://ambermd.org/formats.html
 			for i in range(MOL['PARM_NTYPES']):
 				j = MOL['parm7_lj_index'][i * (MOL['PARM_NTYPES'] + 1)] - 1
 
@@ -107,6 +124,7 @@ def build(MOL):
 
 class Writer(openmol.Writer):
 	def __init__(self, MOL, data_file):
+		# open the file for writing
 		super(Writer, self).__init__(MOL, data_file)
 
 	def title(self):
@@ -126,6 +144,7 @@ class Writer(openmol.Writer):
 		self.fp.write("%d dihedral types\n\n" %self.MOL['no_dihed_types'])
 
 	def box_info(self):
+		# @todo: handle situations where coords have -ve values
 		if self.MOL['box_x'] == 0.0:
 			xlo = min(self.MOL['atom_x']) - BOX_BUFFER
 			xhi = max(self.MOL['atom_x']) + BOX_BUFFER
@@ -271,4 +290,6 @@ class Writer(openmol.Writer):
 		self.bonds()
 		self.angles()
 		self.diheds()
+
+		# close the file
 		super(Writer, self).write()

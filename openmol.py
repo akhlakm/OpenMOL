@@ -5,6 +5,8 @@ def legal_key(strg, search=re.compile(r'^[a-zA-Z_][a-zA-Z_0-9]*$').search):
 	return bool(search(strg))
 
 class AttrDict(dict):
+	""" Adds a convenient way to access dictionary items as properties """
+
 	def __init__(self, d=None):
 		if type(d) == dict:
 			for k,v in d.items():
@@ -37,6 +39,10 @@ class AttrDict(dict):
 
 
 def initialize():
+	""" Generate empty OpenMOL dictionary object with
+		the default properties.
+		Note: openmol uses 0 based indexing. """
+
 	MOL = {}
 
 	MOL['title'] = None
@@ -94,9 +100,9 @@ def initialize():
 	MOL['box_gamma'] = 90.0
 
 	# FF parameters
-	MOL['FF_lj_epsilon'] = []
-	MOL['FF_lj_sigma'] = []
-	MOL['pair_ff_index'] = []
+	MOL['FF_lj_epsilon'] = []			# epsilon of each atom type
+	MOL['FF_lj_sigma'] = []				# sigma of each atom type
+	MOL['pair_ff_index'] = []			# index connecting atom_type_index
 
 	MOL['FF_bond_k'] = []
 	MOL['FF_bond_eq'] = []
@@ -107,7 +113,7 @@ def initialize():
 	MOL['angle_ff_index'] = []
 
 	MOL['FF_dihed_k'] = []
-	MOL['FF_dihed_phase'] = []
+	MOL['FF_dihed_phase'] = []			# in radians
 	MOL['FF_dihed_periodicity'] = []
 	MOL['dihed_ff_index'] = []
 
@@ -115,6 +121,10 @@ def initialize():
 
 
 def write_json(MOL, json_file, compress=False):
+	""" Write the openmol object as openmol JSON file
+		Optional compress argument can be used to save
+		without any indentation. """
+
 	with open(json_file, 'w+') as fp:
 		if compress:
 			json.dump(MOL,fp, indent=None, separators=(',', ':'))
@@ -125,6 +135,7 @@ def write_json(MOL, json_file, compress=False):
 
 
 def load_json(json_file):
+	""" Load a openmol type JSON file and return the openmol object """
 	with open(json_file, 'r') as fp:
 		MOL = json.load(fp)
 
@@ -137,7 +148,7 @@ def load_json(json_file):
 def check_atoms_ok(MOL):
 	conditions_fail = [
 		not MOL['no_atoms'],
-		len(MOL['atom_q']) and MOL['no_atoms'] != len(MOL['atom_y']),
+		len(MOL['atom_q']) and MOL['no_atoms'] != len(MOL['atom_q']),
 	]
 
 	conditions_ok = [
@@ -191,6 +202,10 @@ def check(MOL):
 	return check_atoms_ok(MOL) and check_bonds_ok(MOL) and check_residues_ok(MOL)
 
 def update_summary(MOL, overwrite=False):
+	""" Attempts to update the atom, type, bond and residue counts
+		from the length of their list. Should be called if
+		they have been changed manually. """
+
 	if overwrite or MOL['no_atoms'] is None:
 		MOL['no_atoms'] = len(MOL['atom_x'])
 
@@ -206,6 +221,9 @@ def update_summary(MOL, overwrite=False):
 
 
 class Writer(object):
+	""" Base file writer interface to implement in different
+		Writer classes. """
+
 	def __init__(self, MOL, out_file):
 		self.out_file = out_file
 		self.fp = open(out_file, 'w+')

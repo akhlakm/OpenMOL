@@ -1,5 +1,8 @@
 import openmol
 
+# AMBER PARM7 pointers list
+# See http://ambermd.org/formats.html
+
 pointers = [
 	'NATOM', 	'NTYPES', 'NBONH',  'MBONA',  'NTHETH', 'MTHETA',
 	'NPHIH',    'MPHIA',  'NHPARM', 'NPARM',  'NNB',    'NRES',
@@ -10,6 +13,9 @@ pointers = [
 ]
 
 def initialize():
+	""" Initialize an openmol object with Amber
+		specific items. """
+
 	MOL = openmol.initialize()
 	MOL['source_format'] = "AMBER PARM7"
 
@@ -26,11 +32,14 @@ def initialize():
 	return MOL
 
 def process_last_section(MOL, section, lines, format):
+	""" Parse and process the last read section of PARM7 file """
+
 	items = []
 	for l in lines:
 		items += l.split()
 
 	if not section:
+		# no previous section
 		return True
 
 	if section == 'TITLE':
@@ -65,7 +74,7 @@ def process_last_section(MOL, section, lines, format):
 			return False
 
 		for q in items:
-			# in electionic units
+			# in electionic units, see http://ambermd.org/formats.html
 			MOL['atom_q'].append(float(q)/18.2223)
 
 	elif section == 'ATOMIC_NUMBER':
@@ -91,6 +100,7 @@ def process_last_section(MOL, section, lines, format):
 			return False
 
 		for t in items:
+			# 1 based indexing, subtract 1
 			MOL['pair_ff_index'].append(int(t) - 1)
 
 	elif section == 'NUMBER_EXCLUDED_ATOMS':
@@ -131,6 +141,8 @@ def process_last_section(MOL, section, lines, format):
 			index0 = int(abs(int(items[i]))/3)
 			index1 = int(abs(int(items[i+1]))/3)
 			index2 = int(items[i+2]) - 1
+			# we do not distinguish between H or other atoms for now
+			# store as regular bond info
 			MOL['bond_from'].append(index0)
 			MOL['bond_to'].append(index1)
 			MOL['bond_ff_index'].append(index2)
@@ -141,6 +153,8 @@ def process_last_section(MOL, section, lines, format):
 			index1 = int(abs(int(items[i+1]))/3)
 			index2 = int(abs(int(items[i+2]))/3)
 			index3 = int(items[i+3]) - 1
+			# we do not distinguish between H or other atoms for now
+			# store as regular angle info
 			MOL['angle_a'].append(index0)
 			MOL['angle_b'].append(index1)
 			MOL['angle_c'].append(index2)
@@ -153,6 +167,8 @@ def process_last_section(MOL, section, lines, format):
 			index2 = int(abs(int(items[i+2]))/3)
 			index3 = int(abs(int(items[i+3]))/3)
 			index4 = int(items[i+4]) - 1
+			# we do not distinguish between H or other atoms for now
+			# store as regular dihedral info
 			MOL['dihed_a'].append(index0)
 			MOL['dihed_b'].append(index1)
 			MOL['dihed_c'].append(index2)
@@ -214,11 +230,11 @@ def read_prmtop(prmtop):
 
 	MOL = initialize()
 
-	line_no = 0
-	section_line_no = 0
+	line_no = 0					# global line number
+	section_line_no = 0			# line number within current section
 	section = None
 	section_format = None
-	section_lines = []
+	section_lines = []			# lines of current section
 
 	for line in open(prmtop, 'r'):
 		line_no += 1
@@ -244,6 +260,7 @@ def read_prmtop(prmtop):
 				print('-- Error: Invalid PRMTOP [line %d]:\n%s' %(line_no, line))
 				return None
 			else:
+				# new section found, first process the previous section if any
 				if not process_last_section(MOL, section, section_lines, section_format):
 					return False
 
@@ -263,6 +280,7 @@ def read_prmtop(prmtop):
 		else:
 			section_lines.append(line)
 
+	# process the final section
 	if not process_last_section(MOL, section, section_lines, section_format):
 		return False
 
@@ -291,14 +309,17 @@ def read_rst7(MOL, rst_file):
 			parts = line.split()
 			no_atoms = int(parts[0])
 			if len(parts) > 1:
+				# optional time string
 				MOL['time'] = float(parts[1])
 			if len(parts) > 2:
+				# optional temperature string
 				MOL['temp'] = float(parts[2])
 
 			if no_atoms != MOL['no_atoms']:
-				print('-- Error: RST7 no_atoms mismatch.')
+				print('-- Error: RST7 no_atoms mismatch with the PARM7 file.')
 				return False
 		else:
+			# rest is all the atomic coordinates in 3D
 			items += line.split()
 
 	if len(items) < no_atoms * 3:
@@ -314,6 +335,7 @@ def read_rst7(MOL, rst_file):
 
 	print('OK')
 
+	# read optional velocities
 	if len(items) >= no_atoms*6:
 		print('Reading velocities ...', end=' ')
 
@@ -325,10 +347,10 @@ def read_rst7(MOL, rst_file):
 		print('OK')
 
 	box_size_conditions = [
-		len(items) == no_atoms*3 + 3,
-		len(items) == no_atoms*6 + 3,
-		len(items) == no_atoms*3 + 6,
-		len(items) == no_atoms*6 + 6,
+		len(items) == no_atoms*3 + 3,	# x,y,z coordinates + a,b,c
+		len(items) == no_atoms*6 + 3,	# x,y,z coordinates and velocities + a,b,c
+		len(items) == no_atoms*3 + 6,	# x,y,z coordinates + a,b,c + angles
+		len(items) == no_atoms*6 + 6,	# x,y,z coordinates and velocities + a,b,c + angles
 	]
 
 	if any(box_size_conditions):

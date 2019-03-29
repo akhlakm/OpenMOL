@@ -1,6 +1,9 @@
 import openmol
 
 def initialize():
+	""" Initialize an openmol object with TRIPOS MOL2
+		specific items. """
+
 	MOL = openmol.initialize()
 
 	MOL['source_format'] = 'TRIPOS MOL2'
@@ -15,8 +18,11 @@ def initialize():
 	return MOL
 
 def check_last_section(section):
+	""" Parse and process the last read section """
+
 	if section == 'ATOM':
 		if not openmol.check_atoms_ok(MOL):
+			# @todo: do this check here
 			return False
 		else:
 			unique_atom_types = set(MOL['atom_type'])
@@ -24,10 +30,12 @@ def check_last_section(section):
 
 	elif section == 'BOND':
 		if not openmol.check_bonds_ok(MOL):
+			# @todo: do this check here
 			return False
 
 	elif section == 'SUBSTRUCTURE':
 		if not openmol.check_residues_ok(MOL):
+			# @todo: do this check here
 			return False
 
 	print('OK.')
@@ -125,12 +133,14 @@ def read(mol2_file):
 				print('-- Error: Invalid MOL2 [line %d]:\n%s' %(line_no, line))
 				return None
 
+			# mandatory items
 			MOL['atom_name'].append(parts[1])
 			MOL['atom_x'].append(float(parts[2]))
 			MOL['atom_y'].append(float(parts[3]))
 			MOL['atom_z'].append(float(parts[4]))
 			MOL['atom_type'].append(parts[5])
 
+			# optional items
 			if len(parts) > 6:
 				MOL['atom_resid'].append(int(parts[6]) - 1)
 
@@ -185,8 +195,8 @@ def read(mol2_file):
 
 		else:
 			# unknown section
-			# silence is golden
-			pass
+			# @todo: extend here if needed
+			print('-- Warning: Unknown section:\n%s' %section)
 
 	if not check_last_section(section):
 		return False
@@ -195,6 +205,11 @@ def read(mol2_file):
 	return MOL
 
 def build(MOL):
+	""" Go through the openmol object and see if MOL2
+		specific items are properly calculated.
+		If not, attemt to determine/guess them. """
+
+	# add/update with default mol2 items
 	MOL = dict(initialize(), **MOL)
 
 	if not MOL['type']:
@@ -229,6 +244,7 @@ def build(MOL):
 
 class Writer(openmol.Writer):
 	def __init__(self, MOL, data_file):
+		# open the file
 		super(Writer, self).__init__(MOL, data_file)
 
 	def molecule(self):
@@ -286,12 +302,16 @@ class Writer(openmol.Writer):
 			resstr =	"{id:>7d}  {name:>7}  {root:>7d}   {type:>7} \n"
 			self.fp.write(resstr.format(**subst))
 
+	# @extend: add additional sections if needed
+
 	def write(self):
 		if not self.MOL.get('_mol2_built', False):
-			print('-- Warning: MOL not getting build() for MOL2 format likely to fail while writing.')
+			print('-- Warning: call build() before writing. Continuing anyway ...')
 
 		self.molecule()
 		self.atoms()
 		self.bonds()
 		self.substructures()
+
+		# close the file
 		super(Writer, self).write()
