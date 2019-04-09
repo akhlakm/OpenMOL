@@ -17,7 +17,7 @@ def initialize():
 
 	return MOL
 
-def check_last_section(section):
+def check_last_section(section, MOL):
 	""" Parse and process the last read section """
 
 	if section == 'ATOM':
@@ -79,7 +79,7 @@ def read(mol2_file):
 				print('-- Error: Invalid MOL2 [line %d]:\n%s' %(line_no, line))
 				return None
 			else:
-				if not check_last_section(section):
+				if not check_last_section(section, MOL):
 					return False
 
 				section = parts[1]
@@ -198,7 +198,7 @@ def read(mol2_file):
 			# @todo: extend here if needed
 			print('-- Warning: Unknown section:\n%s' %section)
 
-	if not check_last_section(section):
+	if not check_last_section(section, MOL):
 		return False
 
 	print('Done.')
@@ -239,7 +239,7 @@ def build(MOL):
 			MOL['residue_type'].append("****")
 
 	MOL['_mol2_built'] = True
-	return MOL 
+	return openmol.AttrDict(MOL)
 
 
 class Writer(openmol.Writer):
