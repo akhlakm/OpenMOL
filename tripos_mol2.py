@@ -14,6 +14,7 @@ def initialize():
 	MOL['residue_sub_type'] = []
 	MOL['residue_comment'] = []
 	MOL['residue_inter_bonds'] = []
+	MOL['residue_status_bits'] = []
 
 	return MOL
 
