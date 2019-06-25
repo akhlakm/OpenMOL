@@ -62,8 +62,20 @@ def process_last_section(MOL, section, lines, format):
 
 	elif section == 'ATOM_NAME':
 		if len(items) != MOL['no_atoms']:
-			print('-- Error: no_atoms and ATOM_NAME section mismatch')
-			return False
+			print('\n-- Error: no_atoms and ATOM_NAME section mismatch')
+			print('-- no of atoms: %d, record found: %d' %(MOL['no_atoms'], len(items)))
+			print('-- this may happen if the system is huge.')
+			print('-- reparsing section lines for atom names with 20A4 formatting ...')
+			items = []
+			for l in lines:
+				n = 4
+				items += [l[i:i+n].strip() for i in range(0, len(l), n)]
+
+			if len(items) != MOL['no_atoms']:
+				print('\n-- Error: no_atoms and ATOM_NAME section mismatch after reparsing')
+				print('-- no of atoms: %d, record found: %d' %(MOL['no_atoms'], len(items)))
+				print('-- nothing else to do. :( ')
+				return False
 
 		for name in items:
 			MOL['atom_name'].append(name)
