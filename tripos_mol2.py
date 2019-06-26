@@ -239,6 +239,8 @@ def build(MOL):
 		for i in range(MOL['no_residues']):
 			MOL['residue_type'].append("****")
 
+	MOL['no_residues'] = len(MOL['residue_name'])
+
 	MOL['_mol2_built'] = True
 	return openmol.AttrDict(MOL)
 
