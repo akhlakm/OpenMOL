@@ -276,7 +276,7 @@ class Writer(openmol.Writer):
 				'charge': self.MOL['atom_q'][i]
 			}
 			atomstr =	"{id:>7d} {name:<5}  " \
-						"{x:>7.4f}  {y:>7.4f}  {z:>7.4f}   {type:>3} " \
+						"{x:>8.4f}  {y:>8.4f}  {z:>8.4f}   {type:>3} " \
 						"{resid:>3} {resname:<5}   {charge:>11.6f}\n"
 			self.fp.write(atomstr.format(**atom))
 
