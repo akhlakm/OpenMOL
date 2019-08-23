@@ -49,7 +49,7 @@ pc_orig = {}
 orig_pc = {}
 
 # Initial index value, increment
-index_val 	= 0.0000
+index_val 	= 5.0000
 d_index 	= 0.0001
 
 # Counter
