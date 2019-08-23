@@ -14,7 +14,6 @@ imported in tleap.
 	copy paste units, the pc index should be kept the same.
 	save as the final system mol2 file. (single)
 
-
 3. Restore original types and charges:
 	Use ./apply_index.py <system.mol2>
 	It will parse the atoms, match the partial charge with the saved
