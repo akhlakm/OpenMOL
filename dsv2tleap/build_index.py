@@ -38,7 +38,7 @@ if len(sys.argv) < 2:
 try:
 	import openmol
 except ImportError:
-	alert("Failed to import openmol. Please add to PYTHONPATH, or update sys.path.")
+	print("Failed to import openmol. Please add to PYTHONPATH, or update sys.path.")
 	raise
 
 import tripos_mol2 as mol2 
