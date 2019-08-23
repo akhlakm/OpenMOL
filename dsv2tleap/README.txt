@@ -29,3 +29,6 @@ NOTE: 	pc_index uses partial charges >5.0000 for maintaining index.
 	You can add manual partial charges if they are not >5.0,
 	which is very unlikely.
 
+	If you change the original type of the atoms, you need to manually
+	update them.
+

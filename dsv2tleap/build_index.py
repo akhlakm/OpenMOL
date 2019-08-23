@@ -76,7 +76,7 @@ for molfile in sys.argv[1:]:
 			orig_items = [a_type, a_charge, a_resname]
 			pc_orig["%.4f" %index_val] = orig_items
 			count += 1
-			if len(pc_orig) > 999:
+			if len(pc_orig) > 9999:
 				alert("WARN! Too many unique atom types.")
 
 		new_charge = orig_pc[orig_key]
