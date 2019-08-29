@@ -21,7 +21,7 @@ def initialize():
 	MOL['parm7_lj_epsilon'] = []
 	MOL['parm7_lj_sigma'] = []
 
-	return MOL 
+	return openmol.AttrDict(MOL)
 
 
 def build(MOL):
@@ -119,7 +119,7 @@ def build(MOL):
 		print('-- LAMMPS Build Error: fail to build pair coeffs, length mismatch.')
 
 	MOL['_lammps_built'] = True
-	return MOL 
+	return openmol.AttrDict(MOL)
 
 
 class Writer(openmol.Writer):

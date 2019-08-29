@@ -14,10 +14,11 @@ def initialize():
 	MOL['residue_sub_type'] = []
 	MOL['residue_comment'] = []
 	MOL['residue_inter_bonds'] = []
+	MOL['residue_status_bits'] = []
 
 	return MOL
 
-def check_last_section(section):
+def check_last_section(section, MOL):
 	""" Parse and process the last read section """
 
 	if section == 'ATOM':
@@ -79,7 +80,7 @@ def read(mol2_file):
 				print('-- Error: Invalid MOL2 [line %d]:\n%s' %(line_no, line))
 				return None
 			else:
-				if not check_last_section(section):
+				if not check_last_section(section, MOL):
 					return False
 
 				section = parts[1]
@@ -198,7 +199,7 @@ def read(mol2_file):
 			# @todo: extend here if needed
 			print('-- Warning: Unknown section:\n%s' %section)
 
-	if not check_last_section(section):
+	if not check_last_section(section, MOL):
 		return False
 
 	print('Done.')
@@ -238,8 +239,10 @@ def build(MOL):
 		for i in range(MOL['no_residues']):
 			MOL['residue_type'].append("****")
 
+	MOL['no_residues'] = len(MOL['residue_name'])
+
 	MOL['_mol2_built'] = True
-	return MOL 
+	return openmol.AttrDict(MOL)
 
 
 class Writer(openmol.Writer):
@@ -273,7 +276,7 @@ class Writer(openmol.Writer):
 				'charge': self.MOL['atom_q'][i]
 			}
 			atomstr =	"{id:>7d} {name:<5}  " \
-						"{x:>7.4f}  {y:>7.4f}  {z:>7.4f}   {type:>3} " \
+						"{x:>8.4f}  {y:>8.4f}  {z:>8.4f}   {type:>3} " \
 						"{resid:>3} {resname:<5}   {charge:>11.6f}\n"
 			self.fp.write(atomstr.format(**atom))
 
