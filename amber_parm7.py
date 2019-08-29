@@ -336,6 +336,7 @@ def read_rst7(MOL, rst_file):
 
 	if len(items) < no_atoms * 3:
 		print('-- Error: RST7 no_atoms, coordinate items mismatch.')
+		print('coordinates: ', len(items), 'no of atoms: ', no_atoms)
 		return False
 
 	print('Reading coordinates ...', end=' ')

@@ -21,7 +21,7 @@ def initialize():
 	MOL['parm7_lj_epsilon'] = []
 	MOL['parm7_lj_sigma'] = []
 
-	return MOL
+	return openmol.AttrDict(MOL)
 
 
 def build(MOL):
