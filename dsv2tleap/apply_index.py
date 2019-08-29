@@ -21,6 +21,10 @@ def load_json(json_file):
 		obj = json.load(fp)
 	return obj
 
+# Sanity check
+if len(sys.argv) != 2:
+	print_usage()
+
 ## Simple Logging
 ## -----------------------------------------------
 def alert(msg):
