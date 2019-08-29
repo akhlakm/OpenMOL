@@ -4,10 +4,6 @@ import sys
 import json
 sys.path.append("..")
 
-# Sanity check
-if len(sys.argv) != 2:
-	print_usage()
-
 try:
 	import openmol
 except ImportError:
