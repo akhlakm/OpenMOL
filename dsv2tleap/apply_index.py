@@ -66,6 +66,7 @@ for i, a_name in enumerate(unit['atom_name']):
 
 	if pc_index in pc_orig:
 		count += 1
+		unit['atom_name'][i] = pc_orig[pc_index][0].title()
 		unit['atom_type'][i] = pc_orig[pc_index][0]
 		unit['atom_q'][i] = pc_orig[pc_index][1]
 	else:
