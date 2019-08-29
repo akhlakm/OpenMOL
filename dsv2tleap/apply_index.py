@@ -86,7 +86,15 @@ else:
 	done("All pc_index applied successfully.")
 
 unit['title'] = "PC index applied DSV system for tleap"
-unit = mol2.build(unit)
+
+# unit = mol2.build(unit)
+# Building items manually
+unit['no_atoms'] = len(unit.atom_name)
+unit['no_bonds'] = len(unit.bond_from)
+unit['no_residues'] = len(unit.residue_start)
+
+# openmol.write_json(unit, 'tleap.system.json')
+
 mol2.Writer(unit, 'tleap_'+molfile.split("/")[-1]).write()
 
 print("Please use the written tleap_dsv_ MOL2 files for system building in tleap.")
