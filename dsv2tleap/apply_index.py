@@ -72,10 +72,12 @@ for i, a_name in enumerate(unit['atom_name']):
 
 	if pc_index in pc_orig:
 		count += 1
+		# set atom name as title cased atom type
 		unit['atom_name'][i] = pc_orig[pc_index][0].title()
 		unit['atom_type'][i] = pc_orig[pc_index][0]
 		unit['atom_q'][i] = pc_orig[pc_index][1]
 	else:
+		# this can happen if you changed partial charges or add new atoms
 		unknown_pc_index.append(pc_index)
 		alert("Unknown pc_index: %s atom ID %d" %(pc_index, i+1))
 
@@ -93,7 +95,10 @@ else:
 
 unit['title'] = "PC index applied DSV system for tleap"
 
+# redo counting of items
 unit = openmol.update_summary(unit)
+
+# rebuild mol2 items for writing
 unit = mol2.build(unit)
 
 # openmol.write_json(unit, 'tleap.system.json')

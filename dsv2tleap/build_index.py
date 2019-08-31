@@ -78,12 +78,16 @@ for molfile in sys.argv[1:]:
 		if not orig_key in orig_pc:
 			index_val += d_index
 			orig_pc[orig_key] = "%.4f" %index_val
+
+			# items we are storing for each reference partial charge
 			orig_items = [a_type, a_charge, a_resname]
 			pc_orig["%.4f" %index_val] = orig_items
 			count += 1
+
 			if len(pc_orig) > 9999:
 				alert("WARN! Too many unique atom types.")
 
+		# reference partial charge value
 		new_charge = orig_pc[orig_key]
 
 		# update charge
