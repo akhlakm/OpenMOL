@@ -211,6 +211,7 @@ def read(mol2_file):
 			# unknown section
 			# @todo: extend here if needed
 			# print('-- Warning: Unknown section: %s ' %section)
+			pass
 
 	if not check_last_section(section, MOL):
 		return False
