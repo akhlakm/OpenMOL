@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+""" Fix DSV system MOL2 file using previously prepared index.
+
+	This file is a part of OpenMOL python module.
+	License GPLv3.0 Copyright (c) 2019 Akhlak Mahmood """
+
+
 import sys
 import json
 sys.path.append("..")

@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+""" Prepare MOL2 file to build systems in DSV.
+
+	This file is a part of OpenMOL python module.
+	License GPLv3.0 Copyright (c) 2019 Akhlak Mahmood """
+
 ## Usage:
 def print_usage():
 	print("%s <unit mol2 1> [<unit mol2 2>] [<unit mol2 3>] ..." %sys.argv[0])
