@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+
+""" TRIPOS MOL2 file reader and writer.
+
+	This file is a part of OpenMOL python module.
+	License GPLv3.0 Copyright (c) 2019 Akhlak Mahmood """
+
+__author__ 	= "Akhlak Mahmood, Yingling Group, MSE, NCSU"
+
+
 import openmol
 
 def initialize():
