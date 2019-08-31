@@ -87,11 +87,8 @@ else:
 
 unit['title'] = "PC index applied DSV system for tleap"
 
-# unit = mol2.build(unit)
-# Building items manually
-unit['no_atoms'] = len(unit.atom_name)
-unit['no_bonds'] = len(unit.bond_from)
-unit['no_residues'] = len(unit.residue_start)
+unit = openmol.update_summary(unit)
+unit = mol2.build(unit)
 
 # openmol.write_json(unit, 'tleap.system.json')
 

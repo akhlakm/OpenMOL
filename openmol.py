@@ -228,6 +228,8 @@ def update_summary(MOL, overwrite=False):
 		MOL['unique_atom_types'] = list(set(MOL['atom_type']))
 		MOL['no_atom_types'] = len(MOL['unique_atom_types'])
 
+	return MOL
+
 
 class Writer(object):
 	""" Base file writer interface to implement in different
