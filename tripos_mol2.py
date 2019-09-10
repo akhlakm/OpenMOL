@@ -295,6 +295,8 @@ def build(MOL):
 				MOL['residue_name'].append(MOL['atom_resname'][i])
 
 	MOL['no_residues'] = len(MOL['residue_name'])
+	MOL['no_atoms'] = len(MOL['atom_name'])
+	MOL['no_bonds'] = len(MOL['bond_from'])
 
 	if len(unique_resids) != MOL['no_residues']:
 		print("-- Error: unique_resids", len(unique_resids), 'no_residues', MOL['no_residues'])
