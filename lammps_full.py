@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+
+""" LAMMPS dat file writer for atom_style 'full'.
+
+	This file is a part of OpenMOL python module.
+	License GPLv3.0 Copyright (c) 2019 Akhlak Mahmood """
+
 import math
 import openmol
 

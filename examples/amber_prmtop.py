@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+""" Simple example using OpenMOL to convert from
+	AMBER PARM files into LAMMPS dat file.
+
+	This file is a part of OpenMOL python module.
+	License GPLv3.0 Copyright (c) 2019 Akhlak Mahmood """
+
+
 # oleylamine example
 
 import sys
