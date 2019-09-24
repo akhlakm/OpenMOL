@@ -1,6 +1,7 @@
 
 Prepare MOL2 file(s) for system building in DSV which later can be
-imported in tleap.
+imported in tleap. This works based on the assumption that the only
+items that are kept the same by DSV are the atomic partial charges.
 
 1. Prepare the units:
 	Use ./build_index.py on all the MOL2 files to set partial charges
