@@ -1,6 +1,6 @@
 ﻿# OpenMOL
 
-OpenMOL is a python3 package that attempts to convert between popular molecular dynamics data file formats.
+OpenMOL is a python3 package that attempts to convert between popular molecular dynamics data file formats and exposes a pythonic way to easily manipulate mol2 files.
 
 ## Features
 
@@ -73,7 +73,4 @@ mol2.Writer(p, 'fixed_dsv_output.mol2').write()
 ```
 
 ## License
-
 GNU General Public License v3.0 (GPLv3.0)
-
-Copyright (c) 2019 Akhlak Mahmood
