@@ -38,12 +38,19 @@ def initialize():
 
 	return MOL
 
-def process_last_section(MOL, section, lines, format):
+def process_last_section(MOL, section, lines, sformat):
 	""" Parse and process the last read section of PARM7 file """
 
 	items = []
-	for l in lines:
-		items += l.split()
+	for line in lines:
+		if sformat == "10I8":
+			n = 8
+			for i in range(0, len(line), n):
+				item = line[i:i+n].strip()
+				if len(item) > 0:
+					items.append(item)
+		else:
+			items += line.strip().split()
 
 	if not section:
 		# no previous section
@@ -259,8 +266,6 @@ def read_prmtop(prmtop):
 		line_no += 1
 		section_line_no += 1
 
-		line = line.strip()
-
 		if len(line) == 0:
 			continue
 
@@ -289,7 +294,7 @@ def read_prmtop(prmtop):
 				section_lines = []
 
 		elif line.startswith('%FORMAT'):
-			parts = line.split('(')
+			parts = line.strip().split('(')
 			if len(parts) < 2:
 				print('-- Error: Invalid PRMTOP [line %d]:\n%s' %(line_no, line))
 				return None
