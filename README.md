@@ -17,7 +17,7 @@ pip install openmol
 
 ## Usage Examples
 
-### 1. AMBER to LAMMPS
+### AMBER to LAMMPS
 Convert AMBER **prmtop** and **restart** files to a LAMMPS **data** file.
 ```python
 from openmol import amber_parm7 as amber
@@ -32,7 +32,7 @@ lmp = lammps.Writer(p, 'system.data')
 lmp.write()
 ```
 
-### 2. Fix VMD MOL2
+### Fix VMD MOL2
 The *SUBSTRUCTURE* section of the MOL2 files created by VMD are not always properly formated. Use the following to fix the format.
 
 ```python
