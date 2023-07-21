@@ -23,10 +23,17 @@ def initialize():
 
 	MOL['no_atoms'] = 0
 	MOL['no_bonds'] = 0
-	MOL['no_atom_types'] = 0
-	MOL['no_residues'] = 0
 	MOL['no_angles'] = 0
 	MOL['no_diheds'] = 0
+	MOL['no_improper'] = 0
+	MOL['no_residues'] = 0
+
+	MOL['no_atom_types'] = 0
+	MOL['no_bond_types'] = 0
+	MOL['no_angle_types'] = 0
+	MOL['no_dihed_types'] = 0
+	MOL['no_improper_types'] = 0
+
 	MOL['unique_atom_types'] = []
 
 	MOL['atom_name'] = []
@@ -190,6 +197,22 @@ def update_summary(MOL, overwrite=False):
 		MOL['no_atom_types'] = len(MOL['unique_atom_types'])
 
 	return MOL
+
+
+class Reader(object):
+	""" Base file reader interface to implement in different
+		Reader classes. """
+
+	def __init__(self, input_file : str = None):
+		self.Mol = initialize()
+		self.in_file = input_file
+		self.lines = []
+
+	def read(self, input_file : str = None):
+		if input_file is not None:
+			self.in_file = input_file
+		self.lines = open(self.in_file).readlines()
+		print('Read OK: %s' %self.in_file)
 
 
 class Writer(object):

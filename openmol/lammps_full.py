@@ -5,6 +5,7 @@
 	This file is a part of OpenMOL python module.
 	License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
 
+import re
 import math
 import openmol
 
@@ -127,6 +128,207 @@ def build(MOL):
 
 	MOL['_lammps_built'] = True
 	return openmol.AttrDict(MOL)
+
+
+class Reader(openmol.Reader):
+	def __init__(self):
+		super(Reader, self).__init__()
+		self.Mol['source_format'] = "LAMMPS FULL"
+		self.Mol['unique_atom_mass'] = []
+		self.Mol['_lammps_built'] = False
+
+	def read(self, lammps_data_file : str):
+		super(Reader, self).read(lammps_data_file)
+		self._process_lines()
+
+	def _parse_str_as_type(self, string : str, dtype : callable, line, i):
+		errstr  = f"-- Read Error: failed to parse {string} as {dtype}. "
+		errstr += f"line {i}: {line}"
+		try:
+			value = dtype(string)
+		except TypeError:
+			raise TypeError(errstr)
+		return value
+
+	def _section_starts(self, line, i, startswith) -> int:
+		""" Return count if a line denotes a section start.
+		Ex. atom count, or atom type count.
+		"""
+		items = re.findall(rf'^(\d+)\s+{startswith}$', line)
+		if items:
+			return self._parse_str_as_type(items[0], int, line, i)
+		else:
+			return -1
+
+	def _process_lines(self):
+		line_no = 0
+		section_line_no = 0
+		section = None
+
+		for i, line in enumerate(self.lines):
+			line_no += 1
+			section_line_no += 1
+			line = line.strip()
+
+			if len(line) == 0:
+				continue
+
+			# comments
+			if line.startswith("#"):
+				continue
+
+			first_word = line.split()[0]
+
+			# title, can be optional
+			if i == 0:
+				self.Mol.title = line
+				continue
+
+			# count section start
+			if section is None:
+				at = self._section_starts(line, i, "atoms")
+				if at >= 0:
+					self.Mol.no_atoms = at
+					section = 'counts'
+					continue
+
+			if first_word == "Masses":
+				section = 'mass'
+				continue
+			elif first_word == "Atoms":
+				section = 'atom'
+				continue
+			elif first_word == "Bonds":
+				section = 'bonds'
+				continue
+			elif first_word == "Angles":
+				section = 'angles'
+				continue
+			elif first_word == "Dihedrals":
+				section = 'diheds'
+				continue
+			elif first_word == "Impropers":
+				section = 'impropers'
+				continue
+
+			if section == 'counts':
+				counts = re.findall(r'^(\d+)\s+([a-z]+)s$', line)
+				if counts:
+					counts = counts[0] # get the tuple/first match
+					number = self._parse_str_as_type(counts[0], int, line, i)
+					item = counts[1]
+					if item == 'bond':
+						self.Mol.no_bonds = number
+					elif item == 'angle':
+						self.Mol.no_angles = number
+					elif item == 'dihedral':
+						self.Mol.no_diheds = number
+					elif item == 'improper':
+						self.Mol.no_improper = number
+					else:
+						print('-- Read Error: unknown count item %s (line %d)' %(item, i+1))
+						return
+				else:
+					at = self._section_starts(line, i, "atom types")
+					if at >= 0:
+						section = 'types'
+						self.Mol.no_atom_types = at
+
+			elif section == 'types':
+				counts = re.findall(r'^(\d+)\s+([a-z]+)\s+types$', line)
+				if counts:
+					counts = counts[0] # get the tuple/first match
+					number = self._parse_str_as_type(counts[0], int, line, i)
+					item = counts[1]
+					if item == 'bond':
+						self.Mol.no_bond_types = number
+					elif item == 'angle':
+						self.Mol.no_angle_types = number
+					elif item == 'dihedral':
+						self.Mol.no_dihed_types = number
+					elif item == 'improper':
+						self.Mol.no_improper_types = number
+					else:
+						print('-- Read Error: unknown count item %s (line %d)' %(item, i+1))
+						return
+
+				else:
+					boxsize = re.findall(r'([+-]?[0-9]*[.]?[0-9]+)\s+([+-]?[0-9]*[.]?[0-9]+)\s+xlo\s+xhi$', line)
+					if boxsize:
+						section = 'boxsize'
+						boxsize = boxsize[0] # get the tuple/first match
+						low = self._parse_str_as_type(boxsize[0], float, line, i)
+						high = self._parse_str_as_type(boxsize[1], float, line, i)
+						self.Mol.box_x_low = low
+						self.Mol.box_x_high = high
+						self.Mol.box_x = high - low
+
+			elif section == 'boxsize':
+				parts = line.split()
+				if parts[0] == "Masses":
+					section = 'mass'
+					continue
+
+				low = self._parse_str_as_type(parts[0], float, line, i)
+				high = self._parse_str_as_type(parts[1], float, line, i)
+				if parts[2] == 'ylo':
+					self.Mol.box_y = high - low
+					self.Mol.box_y_high = high
+					self.Mol.box_y_low = low
+				elif parts[2] == 'zlo':
+					self.Mol.box_z = high - low
+					self.Mol.box_z_high = high
+					self.Mol.box_z_low = low
+				else:
+					errstr  = f"-- Read Error: failed to parse boxsize. "
+					errstr += f"line {i}: {line}"
+					ValueError(errstr)
+
+			elif section == 'mass':
+				parts = line.split("#")
+				masses = parts[0].split()
+				comment = parts[1].strip() if len(parts) > 1 else None
+
+				if parts[0] == "Atoms":
+					section = 'atom'
+					continue
+
+				type_id = self._parse_str_as_type(masses[0], int, line, i)
+				mass = self._parse_str_as_type(masses[1], float, line, i)
+
+				self.Mol.unique_atom_mass.append(mass)
+
+				if comment:
+					self.Mol.unique_atom_types.append(comment)
+				else:
+					self.Mol.unique_atom_types.append(type_id - 1)
+
+			elif section == 'atom':
+				parts = line.split("#")
+				info = parts[0].split()
+				comment = parts[1].strip() if len(parts) > 1 else None
+				
+				res_id = self._parse_str_as_type(info[1], int, line, i)
+				at_type = self._parse_str_as_type(info[2], int, line, i)
+				
+				at_q = self._parse_str_as_type(info[3], float, line, i)
+				at_x = self._parse_str_as_type(info[4], float, line, i)
+				at_y = self._parse_str_as_type(info[5], float, line, i)
+				at_z = self._parse_str_as_type(info[6], float, line, i)
+
+				self.Mol.atom_x.append(at_x)
+				self.Mol.atom_y.append(at_y)
+				self.Mol.atom_z.append(at_z)
+				self.Mol.atom_q.append(at_q)
+				self.Mol.atom_type_index.append(at_type - 1)
+				self.Mol.atom_resid.append(res_id - 1)
+				self.Mol.atom_resname.append(res_id)
+
+				if comment:
+					comment = comment.strip()
+					self.Mol.atom_name.append(comment)
+					self.Mol.atom_type.append(comment)
+
 
 
 class Writer(openmol.Writer):
