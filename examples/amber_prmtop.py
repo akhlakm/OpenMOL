@@ -13,9 +13,9 @@ import sys
 sys.path.append("..")
 
 import openmol
-import amber_parm7 as parm 
-import lammps_qmag as lammps
-import tripos_mol2 as mol2
+from openmol import amber_parm7 as parm 
+from openmol import lammps_qmag as lammps
+from openmol import tripos_mol2 as mol2
 
 # read amber parm files
 p = parm.read('oleylamine.prmtop', 'oleylamine.rst7')
