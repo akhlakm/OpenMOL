@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" LAMMPS dat file writer for atom_style 'full'.
+""" LAMMPS dat file reader and writer for atom_style 'full'.
 
 	This file is a part of OpenMOL python module.
 	License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
@@ -108,6 +108,7 @@ class Reader(openmol.Reader):
 	def read(self, lammps_data_file : str):
 		super(Reader, self).read(lammps_data_file)
 		self._process_lines()
+		print("-- WARN: FF params reading is not currently implemented")
 		openmol.check(self.Mol)
 
 	def build(self):
