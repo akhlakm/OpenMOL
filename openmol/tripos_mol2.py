@@ -8,7 +8,7 @@
 import openmol
 
 
-def initialize():
+def initialize(new_items):
 	""" Initialize an openmol object with TRIPOS MOL2
 		specific items. """
 
@@ -24,6 +24,8 @@ def initialize():
 	MOL['residue_inter_bonds'] = []
 	MOL['residue_status_bits'] = []
 
+	MOL.update(new_items)
+
 	return MOL
 
 
@@ -33,7 +35,7 @@ def build(MOL):
 		If not, attemt to determine/guess them. """
 
 	# add/update with default mol2 items
-	MOL = dict(initialize(), **MOL)
+	MOL = initialize(MOL)
 
 	if not MOL['type']:
 		MOL['type'] = 'SMALL'
@@ -115,7 +117,8 @@ def build(MOL):
 			MOL['residue_type'].append("RESIDUE")
 
 	MOL['_mol2_built'] = True
-	return openmol.AttrDict(MOL)
+	print("Build done")
+	return MOL
 
 
 def check_last_section(section, MOL):
