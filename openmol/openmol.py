@@ -5,8 +5,6 @@
 	This file is a part of OpenMOL python module.
 	License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
 
-__author__ 	= "Akhlak Mahmood, Yingling Group, MSE, NCSU"
-
 import json
 from .utils import AttrDict
 

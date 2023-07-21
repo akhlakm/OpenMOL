@@ -1,3 +1,8 @@
+""" OpenMOL utility functions and classes.
+
+	This file is a part of OpenMOL python module.
+	License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
+
 import re
 
 class AttrDict(dict):
