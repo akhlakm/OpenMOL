@@ -3,12 +3,13 @@
 """ TRIPOS MOL2 file reader and writer.
 
 	This file is a part of OpenMOL python module.
-	License GPLv3.0 Copyright (c) 2019 Akhlak Mahmood """
+	License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
 
 __author__ 	= "Akhlak Mahmood, Yingling Group, MSE, NCSU"
 
 
 import openmol
+
 
 def initialize():
 	""" Initialize an openmol object with TRIPOS MOL2
@@ -27,6 +28,98 @@ def initialize():
 	MOL['residue_status_bits'] = []
 
 	return MOL
+
+
+def build(MOL):
+	""" Go through the openmol object and see if MOL2
+		specific items are properly calculated.
+		If not, attemt to determine/guess them. """
+
+	# add/update with default mol2 items
+	MOL = dict(initialize(), **MOL)
+
+	if not MOL['type']:
+		MOL['type'] = 'SMALL'
+
+	if not MOL['charge_type']:
+		MOL['charge_type'] = 'USER_CHARGES'
+
+	# Fix residue list
+	# case when resnames are defined in substruct section
+	# but not in atoms
+	if len(MOL['atom_resname']) == 0:
+		print("-- Warning: atom residue info missing. Building from residue list.\n")
+		for r, st in enumerate(MOL['residue_start']):
+			res = MOL['residue_name'][r]
+
+			end = MOL['no_atoms']
+			if len(MOL['residue_start']) > r + 1:
+				end = MOL['residue_start'][r+1]
+
+			for i in range(st, end):
+				MOL['atom_resid'].append(r)
+				MOL['atom_resname'].append(res)
+
+	unique_resids = list(set(MOL['atom_resid']))
+
+	# Fix atom resids order
+	if len(unique_resids) > 1:
+		old_id = 0
+		id_num = 0
+		for i, resid in enumerate(MOL['atom_resid']):
+			if old_id > resid:
+				# resid should increase all the times
+				print('-- Error: resid order invalid at atom %d' %(i+1))
+				print('Previous atom', old_id+1, 'Current atom', resid+1)
+				return None
+
+			# new residue begins
+			if resid != old_id:
+				old_id = resid
+				id_num += 1
+			MOL['atom_resid'][i] = id_num
+
+	# if no type set, use single bond
+	if len(MOL['bond_type']) == 0:
+		print("-- Warning: bond type info missing. Assuming single bonds.\n")
+		for i in range(MOL['no_bonds']):
+			MOL['bond_type'].append("1")
+
+	# Fix residue list
+	# case when resnames/ids are defined in atoms section
+	if len(MOL['residue_start']) != len(unique_resids):
+		print("-- Warning: residue list trancated. Building from atoms residue info.\n")
+		current_id = 0
+		MOL['residue_start'] = []
+		MOL['residue_type'] = []
+		MOL['residue_name'] = []
+
+		# add the first atom, 0 based indexing
+		MOL['residue_start'].append(0)
+		MOL['residue_name'].append(MOL['atom_resname'][0])
+
+		for i, resid in enumerate(MOL['atom_resid']):
+			# new residue begins
+			if resid != current_id:
+				current_id = resid
+				MOL['residue_start'].append(i)
+				MOL['residue_name'].append(MOL['atom_resname'][i])
+
+	MOL['no_residues'] = len(MOL['residue_name'])
+	MOL['no_atoms'] = len(MOL['atom_name'])
+	MOL['no_bonds'] = len(MOL['bond_from'])
+
+	if len(unique_resids) != MOL['no_residues']:
+		print("-- Error: unique_resids", len(unique_resids), 'no_residues', MOL['no_residues'])
+		return None
+
+	if len(MOL['residue_type']) == 0:
+		for i in range(MOL['no_residues']):
+			MOL['residue_type'].append("RESIDUE")
+
+	MOL['_mol2_built'] = True
+	return openmol.AttrDict(MOL)
+
 
 def check_last_section(section, MOL):
 	""" Parse and process the last read section """
@@ -218,96 +311,6 @@ def read(mol2_file):
 
 	print('Done.')
 	return MOL
-
-def build(MOL):
-	""" Go through the openmol object and see if MOL2
-		specific items are properly calculated.
-		If not, attemt to determine/guess them. """
-
-	# add/update with default mol2 items
-	MOL = dict(initialize(), **MOL)
-
-	if not MOL['type']:
-		MOL['type'] = 'SMALL'
-
-	if not MOL['charge_type']:
-		MOL['charge_type'] = 'USER_CHARGES'
-
-	# Fix residue list
-	# case when resnames are defined in substruct section
-	# but not in atoms
-	if len(MOL['atom_resname']) == 0:
-		print("-- Warning: atom residue info missing. Building from residue list.\n")
-		for r, st in enumerate(MOL['residue_start']):
-			res = MOL['residue_name'][r]
-
-			end = MOL['no_atoms']
-			if len(MOL['residue_start']) > r + 1:
-				end = MOL['residue_start'][r+1]
-
-			for i in range(st, end):
-				MOL['atom_resid'].append(r)
-				MOL['atom_resname'].append(res)
-
-	unique_resids = list(set(MOL['atom_resid']))
-
-	# Fix atom resids order
-	if len(unique_resids) > 1:
-		old_id = 0
-		id_num = 0
-		for i, resid in enumerate(MOL['atom_resid']):
-			if old_id > resid:
-				# resid should increase all the times
-				print('-- Error: resid order invalid at atom %d' %(i+1))
-				print('Previous atom', old_id+1, 'Current atom', resid+1)
-				return None
-
-			# new residue begins
-			if resid != old_id:
-				old_id = resid
-				id_num += 1
-			MOL['atom_resid'][i] = id_num
-
-	# if no type set, use single bond
-	if len(MOL['bond_type']) == 0:
-		print("-- Warning: bond type info missing. Assuming single bonds.\n")
-		for i in range(MOL['no_bonds']):
-			MOL['bond_type'].append("1")
-
-	# Fix residue list
-	# case when resnames/ids are defined in atoms section
-	if len(MOL['residue_start']) != len(unique_resids):
-		print("-- Warning: residue list trancated. Building from atoms residue info.\n")
-		current_id = 0
-		MOL['residue_start'] = []
-		MOL['residue_type'] = []
-		MOL['residue_name'] = []
-
-		# add the first atom, 0 based indexing
-		MOL['residue_start'].append(0)
-		MOL['residue_name'].append(MOL['atom_resname'][0])
-
-		for i, resid in enumerate(MOL['atom_resid']):
-			# new residue begins
-			if resid != current_id:
-				current_id = resid
-				MOL['residue_start'].append(i)
-				MOL['residue_name'].append(MOL['atom_resname'][i])
-
-	MOL['no_residues'] = len(MOL['residue_name'])
-	MOL['no_atoms'] = len(MOL['atom_name'])
-	MOL['no_bonds'] = len(MOL['bond_from'])
-
-	if len(unique_resids) != MOL['no_residues']:
-		print("-- Error: unique_resids", len(unique_resids), 'no_residues', MOL['no_residues'])
-		return None
-
-	if len(MOL['residue_type']) == 0:
-		for i in range(MOL['no_residues']):
-			MOL['residue_type'].append("RESIDUE")
-
-	MOL['_mol2_built'] = True
-	return openmol.AttrDict(MOL)
 
 
 class Writer(openmol.Writer):

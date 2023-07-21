@@ -3,15 +3,18 @@
 """ LAMMPS dat file writer for atom_style 'qmag'.
 
 	This file is a part of OpenMOL python module.
-	License GPLv3.0 Copyright (c) 2019 Akhlak Mahmood """
+	License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
 
 import math
 
 import openmol
-import lammps_full as lmp 
+from . import lammps_full as lmp 
 
 
 def initialize():
+	""" Initialize an empty openmol object with LAMMPS qmag
+		specific items. """
+
 	MOL = openmol.initialize()
 	MOL = dict(lmp.initialize(), **MOL)
 	MOL['source_format'] = "LAMMPS QMAG"

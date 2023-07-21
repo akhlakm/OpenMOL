@@ -3,7 +3,7 @@
 """ LAMMPS dat file writer for atom_style 'full'.
 
 	This file is a part of OpenMOL python module.
-	License GPLv3.0 Copyright (c) 2019 Akhlak Mahmood """
+	License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
 
 import math
 import openmol
@@ -14,7 +14,7 @@ import openmol
 BOX_BUFFER = 3.0	# A
 
 def initialize():
-	""" Initialize an openmol object with LAMMPS
+	""" Initialize an empty openmol object with LAMMPS
 		specific items. """
 
 	MOL = openmol.initialize()
@@ -276,7 +276,7 @@ class Writer(openmol.Writer):
 				'd': self.MOL['dihed_d'][i] + 1,
 				'type': self.MOL['dihed_ff_index'][i] + 1,
 			}
-			dihedstr =	"{id:>7d}  {type:>3d}  {a:>5d}  {b:>5d}  {c:>5d}  {d:>5d} \n"
+			dihedstr = "{id:>7d}  {type:>3d}  {a:>5d}  {b:>5d}  {c:>5d}  {d:>5d} \n"
 			self.fp.write(dihedstr.format(**dihed))
 
 

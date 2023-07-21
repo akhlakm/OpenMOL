@@ -3,49 +3,12 @@
 """ Define main OpenMOL object definition and helper functions.
 
 	This file is a part of OpenMOL python module.
-	License GPLv3.0 Copyright (c) 2019 Akhlak Mahmood """
+	License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
 
 __author__ 	= "Akhlak Mahmood, Yingling Group, MSE, NCSU"
 
 import json
-import re
-
-def legal_key(strg, search=re.compile(r'^[a-zA-Z_][a-zA-Z_0-9]*$').search):
-	return bool(search(strg))
-
-class AttrDict(dict):
-	""" Adds a convenient way to access dictionary items as properties """
-
-	def __init__(self, d=None):
-		if type(d) == dict:
-			for k,v in d.items():
-				self.__setattr__(k, v)
-
-	def __getattr__(self, key):
-		return self[key]
-
-	def __setattr__(self, key, value):
-		self.__setitem__(key, value)
-
-	def __setitem__(self, key, value):
-		# do not allow any key from dict's namespace
-		if key in dir({}):
-			raise KeyError(key)
-
-		# key has to be string
-		if type(key) != str:
-			raise KeyError(key)
-
-		# key can't start with a digit, must be alphanumeric
-		# unscore allowed
-		if not legal_key(key):
-			raise KeyError(key)
-
-		super(AttrDict, self).__setitem__(key, value)
-
-	def __dir__(self):
-		return super().__dir__() + [str(k) for k in self.keys()]
-
+from .utils import AttrDict
 
 def initialize():
 	""" Generate empty OpenMOL dictionary object with
