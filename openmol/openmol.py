@@ -222,7 +222,6 @@ class Reader(object):
 		if input_file is not None:
 			self.in_file = input_file
 		self.lines = open(self.in_file).readlines()
-		print('Read OK: %s' %self.in_file)
 
 
 class Writer(object):
