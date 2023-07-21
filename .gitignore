@@ -18,3 +18,9 @@ __pycache__/*
 *.prmtop
 
 *.rst7
+
+*.env
+
+dist/
+
+*.egg-info/
