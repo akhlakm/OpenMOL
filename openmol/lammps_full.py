@@ -14,20 +14,19 @@ import openmol
 # of the coordinates. This is the buffer for that.
 BOX_BUFFER = 3.0	# A
 
-def initialize():
+def initialize(new_items):
 	""" Initialize an empty openmol object with LAMMPS
 		specific items. """
 
 	MOL = openmol.initialize()
 	MOL['source_format'] = "LAMMPS FULL"
-
 	MOL['no_bond_types'] = 0
 	MOL['no_angle_types'] = 0
 	MOL['no_dihed_types'] = 0
 	MOL['unique_atom_mass'] = []
+	MOL['pair_ff_index'] = []
 
-	MOL['parm7_lj_epsilon'] = []
-	MOL['parm7_lj_sigma'] = []
+	MOL.update(new_items)
 
 	return MOL
 
@@ -38,7 +37,7 @@ def build(MOL):
 		attemt to calculate them. """
 
 	# add/update with default lammps items
-	MOL = dict(initialize(), **MOL)
+	MOL = initialize(MOL)
 
 	# build residue id and name list
 	if len(MOL['atom_resname']) == 0:
@@ -56,11 +55,6 @@ def build(MOL):
 				MOL['atom_resid'].append(r)
 				MOL['atom_resname'].append(res)
 
-	# using parm7 data
-	MOL['no_bond_types'] = len(MOL['FF_bond_k'])
-	MOL['no_angle_types'] = len(MOL['FF_angle_k'])
-	MOL['no_dihed_types'] = len(MOL['FF_dihed_k'])
-
 	# if we have individual atom masses list, build type's masses
 	if len(MOL['unique_atom_mass']) == 0 and len(MOL['atom_mass']):
 		for unique_atom in MOL['unique_atom_types']:
@@ -69,37 +63,6 @@ def build(MOL):
 
 	if len(MOL['unique_atom_mass']) != MOL['no_atom_types']:
 		print('-- LAMMPS Build Error: fail to build mass list, length mismatch.')
-
-	# use PARM7: if we have A, B coeffs, build epsilon, sigma of parm7
-	# @todo: move this to amber_parm7.py
-	if len(MOL['parm7_lj_acoeff']) and len(MOL['parm7_lj_sigma']) != len(MOL['unique_atom_types']):
-		if not MOL.get('parm7_lj_index', False):
-			print('-- LAMMPS Build Error: non bonded parm7 indices not found.')
-
-		else:
-			# Amber specific way of finding out these values
-			# See http://ambermd.org/formats.html
-			for i in range(MOL['PARM_NTYPES']):
-				j = MOL['parm7_lj_index'][i * (MOL['PARM_NTYPES'] + 1)] - 1
-
-				A = MOL['parm7_lj_acoeff'][j]
-				B = MOL['parm7_lj_bcoeff'][j]
-
-				if A == 0.0:
-					eps = 0.0
-				else:
-					eps = 0.25 * B**2 / A
-
-				if B == 0.0:
-					sigma = 0.0
-				else:
-					sigma = (A / B)**(1.0/6.0)
-
-				MOL['parm7_lj_epsilon'].append(eps)
-				MOL['parm7_lj_sigma'].append(sigma)
-
-	if len(MOL['parm7_lj_epsilon']) != MOL['PARM_NTYPES'] or len(MOL['parm7_lj_sigma']) != MOL['PARM_NTYPES']:
-		print('-- LAMMPS Build Error: fail to build parm7 lj coeffs, length mismatch.')
 
 	# build indices of types
 	if len(MOL['atom_type_index']) != MOL['no_atoms']:
@@ -112,22 +75,27 @@ def build(MOL):
 		print('-- LAMMPS Build Error: fail to build atom type indices, length mismatch.')
 
 	# assuming we have parm7 epsilon sigma lists built, build the lj params of each type
-	if len(MOL['FF_lj_epsilon']) != MOL['no_atom_types'] or len(MOL['FF_lj_sigma']) != MOL['no_atom_types']:
+	if len(MOL['FF_lj_epsilon']) != MOL['no_atom_types'] or \
+			len(MOL['FF_lj_sigma']) != MOL['no_atom_types']:
+
 		MOL['FF_lj_epsilon'] = []
 		MOL['FF_lj_sigma'] = []
 		for i in range(MOL['no_atom_types']):
 			# get the first atom of this type
 			aix = MOL['atom_type_index'].index(i)
-			# get parm7 pair ff index of that atom
-			pfx = MOL['pair_ff_index'][aix]
-			MOL['FF_lj_epsilon'].append(MOL['parm7_lj_epsilon'][pfx])
-			MOL['FF_lj_sigma'].append(MOL['parm7_lj_sigma'][pfx])
+
+			if len(MOL.pair_ff_index) > i:
+				# get parm7 pair ff index of that atom
+				pfx = MOL['pair_ff_index'][aix]
+				MOL['FF_lj_epsilon'].append(MOL['parm7_lj_epsilon'][pfx])
+				MOL['FF_lj_sigma'].append(MOL['parm7_lj_sigma'][pfx])
 
 	if len(MOL['FF_lj_epsilon']) != MOL['no_atom_types'] or len(MOL['FF_lj_sigma']) != MOL['no_atom_types']:
 		print('-- LAMMPS Build Error: fail to build pair coeffs, length mismatch.')
 
 	MOL['_lammps_built'] = True
-	return openmol.AttrDict(MOL)
+	print("Build done")
+	return MOL
 
 
 class Reader(openmol.Reader):
@@ -140,6 +108,10 @@ class Reader(openmol.Reader):
 	def read(self, lammps_data_file : str):
 		super(Reader, self).read(lammps_data_file)
 		self._process_lines()
+		openmol.check(self.Mol)
+
+	def build(self):
+		self.Mol = build(self.Mol)
 
 	def _parse_str_as_type(self, string : str, dtype : callable, line, i):
 		errstr  = f"-- Read Error: failed to parse {string} as {dtype}, "
@@ -194,21 +166,27 @@ class Reader(openmol.Reader):
 
 			if first_word == "Masses":
 				section = 'mass'
+				print('Reading mass list ...')
 				continue
 			elif first_word == "Atoms":
 				section = 'atom'
+				print('Reading atom list ...')
 				continue
 			elif first_word == "Bonds":
 				section = 'bond'
+				print('Reading bond list ...')
 				continue
 			elif first_word == "Angles":
 				section = 'angle'
+				print('Reading angle list ...')
 				continue
 			elif first_word == "Dihedrals":
 				section = 'dihed'
+				print('Reading dihedral list ...')
 				continue
 			elif first_word == "Impropers":
 				section = 'improper'
+				print('Reading improper torsion list ...')
 				continue
 
 			if section == 'counts':
@@ -433,6 +411,8 @@ class Reader(openmol.Reader):
 				self.Mol.improper_ff_index.append(improper_type - 1)
 			else:
 				print("-- WARN: Unknown section, line %d: %s" %(i+1, line))
+
+		print("Read OK")
 
 
 class Writer(openmol.Writer):
