@@ -33,10 +33,116 @@ def initialize():
 	MOL['parm7_lj_bcoeff'] = []
 	MOL['parm7_lj_index'] = []
 
+	MOL['parm7_lj_epsilon'] = []
+	MOL['parm7_lj_sigma'] = []
+
 	for i in pointers:
 		MOL['PARM_%s' %i] = 0
 
 	return MOL
+
+
+def build(MOL):
+	""" Go through the openmol object and see if PARM7 
+		specific items are properly calculated. If not,
+		attemt to calculate them. """
+
+	# add/update with default parm7 items
+	MOL = dict(initialize(), **MOL)
+
+	# build residue id and name list
+	if len(MOL['atom_resname']) == 0:
+		for r, st in enumerate(MOL['residue_start']):
+			res = MOL['residue_name'][r]
+
+			# assume final atom is the last atom of residue
+			end = MOL['no_atoms']
+
+			# if there are more residues defined, update last atom
+			if len(MOL['residue_start']) > r + 1:
+				end = MOL['residue_start'][r+1]
+
+			for i in range(st, end):
+				MOL['atom_resid'].append(r)
+				MOL['atom_resname'].append(res)
+
+	MOL['no_bond_types'] = len(MOL['FF_bond_k'])
+	MOL['no_angle_types'] = len(MOL['FF_angle_k'])
+	MOL['no_dihed_types'] = len(MOL['FF_dihed_k'])
+
+	# if we have individual atom masses list, build type's masses
+	if len(MOL['unique_atom_mass']) == 0 and len(MOL['atom_mass']):
+		for unique_atom in MOL['unique_atom_types']:
+			i = MOL['atom_type'].index(unique_atom)
+			MOL['unique_atom_mass'].append(MOL['atom_mass'][i])
+
+	if len(MOL['unique_atom_mass']) != MOL['no_atom_types']:
+		print('-- PARM7 Build Error: fail to build mass list, length mismatch.')
+
+	# If we have A, B coeffs, build epsilon, sigma of parm7
+	if len(MOL['parm7_lj_acoeff']) and \
+			len(MOL['parm7_lj_sigma']) != len(MOL['unique_atom_types']):
+
+		if not MOL.get('parm7_lj_index', False):
+			print('-- PARM7 Build Error: non bonded parm7 indices not found.')
+
+		else:
+			# Amber specific way of finding out these values
+			# See http://ambermd.org/formats.html
+			for i in range(MOL['PARM_NTYPES']):
+				j = MOL['parm7_lj_index'][i * (MOL['PARM_NTYPES'] + 1)] - 1
+
+				A = MOL['parm7_lj_acoeff'][j]
+				B = MOL['parm7_lj_bcoeff'][j]
+
+				if A == 0.0:
+					eps = 0.0
+				else:
+					eps = 0.25 * B**2 / A
+
+				if B == 0.0:
+					sigma = 0.0
+				else:
+					sigma = (A / B)**(1.0/6.0)
+
+				MOL['parm7_lj_epsilon'].append(eps)
+				MOL['parm7_lj_sigma'].append(sigma)
+
+	if len(MOL['parm7_lj_epsilon']) != MOL['PARM_NTYPES'] or \
+			len(MOL['parm7_lj_sigma']) != MOL['PARM_NTYPES']:
+		print('-- PARM7 Build Error: fail to build parm7 lj coeffs, length mismatch.')
+
+	# build indices of types
+	if len(MOL['atom_type_index']) != MOL['no_atoms']:
+		MOL['atom_type_index'] = []
+		for i in range(MOL['no_atoms']):
+			atom_type = MOL['atom_type'][i]
+			MOL['atom_type_index'].append(MOL['unique_atom_types'].index(atom_type))
+
+	if len(MOL['atom_type_index']) != MOL['no_atoms']:
+		print('-- PARM7 Build Error: fail to build atom type indices, length mismatch.')
+
+	# assuming we have parm7 epsilon sigma lists built, build the lj params of each type
+	if len(MOL['FF_lj_epsilon']) != MOL['no_atom_types'] or \
+			len(MOL['FF_lj_sigma']) != MOL['no_atom_types']:
+		
+		MOL['FF_lj_epsilon'] = []
+		MOL['FF_lj_sigma'] = []
+		for i in range(MOL['no_atom_types']):
+			# get the first atom of this type
+			aix = MOL['atom_type_index'].index(i)
+			# get parm7 pair ff index of that atom
+			pfx = MOL['pair_ff_index'][aix]
+			MOL['FF_lj_epsilon'].append(MOL['parm7_lj_epsilon'][pfx])
+			MOL['FF_lj_sigma'].append(MOL['parm7_lj_sigma'][pfx])
+
+	if len(MOL['FF_lj_epsilon']) != MOL['no_atom_types'] or \
+			len(MOL['FF_lj_sigma']) != MOL['no_atom_types']:
+		print('-- PARM7 Build Error: fail to build pair coeffs, length mismatch.')
+
+	MOL['_parm7_built'] = True
+	return openmol.AttrDict(MOL)
+
 
 def process_last_section(MOL, section, lines, sformat):
 	""" Parse and process the last read section of PARM7 file """
