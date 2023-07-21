@@ -324,7 +324,7 @@ class Writer(openmol.Writer):
 
 	def molecule(self):
 		self.fp.write('@<TRIPOS>MOLECULE\n')
-		molecstr = 	"{title} (by OpenMOL.tripos_mol2)\n" \
+		molecstr = 	"{title} (by OpenMOL)\n" \
 					"{no_atoms:>5d} {no_bonds:>5d} {no_residues:>5d}\n" \
 					"{type}\n" \
 					"{charge_type}\n\n"
