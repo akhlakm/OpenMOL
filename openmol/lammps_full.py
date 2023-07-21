@@ -142,7 +142,7 @@ class Reader(openmol.Reader):
 		self._process_lines()
 
 	def _parse_str_as_type(self, string : str, dtype : callable, line, i):
-		errstr  = f"-- Read Error: failed to parse {string} as {dtype}. "
+		errstr  = f"-- Read Error: failed to parse {string} as {dtype}, "
 		errstr += f"line {i}: {line}"
 		try:
 			value = dtype(string)
@@ -156,7 +156,7 @@ class Reader(openmol.Reader):
 		"""
 		items = re.findall(rf'^(\d+)\s+{startswith}$', line)
 		if items:
-			return self._parse_str_as_type(items[0], int, line, i)
+			return self._parse_str_as_type(items[0], int, line, i+1)
 		else:
 			return -1
 
@@ -199,16 +199,16 @@ class Reader(openmol.Reader):
 				section = 'atom'
 				continue
 			elif first_word == "Bonds":
-				section = 'bonds'
+				section = 'bond'
 				continue
 			elif first_word == "Angles":
-				section = 'angles'
+				section = 'angle'
 				continue
 			elif first_word == "Dihedrals":
-				section = 'diheds'
+				section = 'dihed'
 				continue
 			elif first_word == "Impropers":
-				section = 'impropers'
+				section = 'improper'
 				continue
 
 			if section == 'counts':
@@ -269,6 +269,9 @@ class Reader(openmol.Reader):
 					section = 'mass'
 					continue
 
+				assert len(parts) >= 4, \
+					"Invalid box info, line %d: %s" %(i+1, line)
+
 				low = self._parse_str_as_type(parts[0], float, line, i)
 				high = self._parse_str_as_type(parts[1], float, line, i)
 				if parts[2] == 'ylo':
@@ -286,15 +289,18 @@ class Reader(openmol.Reader):
 
 			elif section == 'mass':
 				parts = line.split("#")
-				masses = parts[0].split()
+				info = parts[0].split()
 				comment = parts[1].strip() if len(parts) > 1 else None
 
 				if parts[0] == "Atoms":
 					section = 'atom'
 					continue
 
-				type_id = self._parse_str_as_type(masses[0], int, line, i)
-				mass = self._parse_str_as_type(masses[1], float, line, i)
+				assert len(info) >= 2, \
+					"Invalid mass info, line %d: %s" %(i+1, line)
+
+				type_id = self._parse_str_as_type(info[0], int, line, i)
+				mass = self._parse_str_as_type(info[1], float, line, i)
 
 				self.Mol.unique_atom_mass.append(mass)
 
@@ -308,6 +314,13 @@ class Reader(openmol.Reader):
 				info = parts[0].split()
 				comment = parts[1].strip() if len(parts) > 1 else None
 				
+				if parts[0] == "Bonds":
+					section = 'bond'
+					continue
+
+				assert len(info) >= 7, \
+					"Invalid atom info, line %d: %s" %(i+1, line)
+
 				res_id = self._parse_str_as_type(info[1], int, line, i)
 				at_type = self._parse_str_as_type(info[2], int, line, i)
 				
@@ -329,6 +342,97 @@ class Reader(openmol.Reader):
 					self.Mol.atom_name.append(comment)
 					self.Mol.atom_type.append(comment)
 
+			elif section == 'bond':
+				parts = line.split("#")
+				info = parts[0].split()
+				comment = parts[1].strip() if len(parts) > 1 else None
+				
+				if parts[0] == "Angles":
+					section = 'angle'
+					continue
+
+				assert len(info) >= 4, \
+					"Invalid bond info, line %d: %s" %(i+1, line)
+
+				bond_type = self._parse_str_as_type(info[1], int, line, i)
+				bond_from_atom = self._parse_str_as_type(info[2], int, line, i)
+				bond_to_atom = self._parse_str_as_type(info[3], int, line, i)
+
+				self.Mol.bond_ff_index.append(bond_type - 1)
+				self.Mol.bond_from.append(bond_from_atom - 1)
+				self.Mol.bond_to.append(bond_to_atom - 1)
+
+			elif section == 'angle':
+				parts = line.split("#")
+				info = parts[0].split()
+				comment = parts[1].strip() if len(parts) > 1 else None
+				
+				if parts[0] == "Dihedrals":
+					section = 'dihed'
+					continue
+
+				assert len(info) >= 4, \
+					"Invalid angle info, line %d: %s" %(i+1, line)
+
+				angle_type = self._parse_str_as_type(info[0], int, line, i)
+				angle_a = self._parse_str_as_type(info[1], int, line, i)
+				angle_b = self._parse_str_as_type(info[2], int, line, i)
+				angle_c = self._parse_str_as_type(info[3], int, line, i)
+
+				self.Mol.angle_a.append(angle_a - 1)
+				self.Mol.angle_b.append(angle_b - 1)
+				self.Mol.angle_c.append(angle_c - 1)
+				self.Mol.angle_ff_index.append(angle_type - 1)
+
+			elif section == 'dihed':
+				parts = line.split("#")
+				info = parts[0].split()
+				comment = parts[1].strip() if len(parts) > 1 else None
+				
+				if parts[0] == "Impropers":
+					section = 'improper'
+					continue
+
+				assert len(info) >= 5, \
+					"Invalid angle info, line %d: %s" %(i+1, line)
+
+				dihed_type = self._parse_str_as_type(info[0], int, line, i)
+				dihed_a = self._parse_str_as_type(info[1], int, line, i)
+				dihed_b = self._parse_str_as_type(info[2], int, line, i)
+				dihed_c = self._parse_str_as_type(info[3], int, line, i)
+				dihed_d = self._parse_str_as_type(info[4], int, line, i)
+
+				self.Mol.dihed_a.append(dihed_a - 1)
+				self.Mol.dihed_b.append(dihed_b - 1)
+				self.Mol.dihed_c.append(dihed_c - 1)
+				self.Mol.dihed_d.append(dihed_d - 1)
+				self.Mol.dihed_ff_index.append(dihed_type - 1)
+
+			elif section == 'improper':
+				parts = line.split("#")
+				info = parts[0].split()
+				comment = parts[1].strip() if len(parts) > 1 else None
+				
+				if len(parts) == 1:
+					section = None
+					continue
+
+				assert len(info) >= 5, \
+					"Invalid angle info, line %d: %s" %(i+1, line)
+
+				improper_type = self._parse_str_as_type(info[0], int, line, i)
+				improper_a = self._parse_str_as_type(info[1], int, line, i)
+				improper_b = self._parse_str_as_type(info[2], int, line, i)
+				improper_c = self._parse_str_as_type(info[3], int, line, i)
+				improper_d = self._parse_str_as_type(info[4], int, line, i)
+
+				self.Mol.improper_a.append(improper_a - 1)
+				self.Mol.improper_b.append(improper_b - 1)
+				self.Mol.improper_c.append(improper_c - 1)
+				self.Mol.improper_d.append(improper_d - 1)
+				self.Mol.improper_ff_index.append(improper_type - 1)
+			else:
+				print("-- WARN: Unknown section, line %d: %s" %(i+1, line))
 
 
 class Writer(openmol.Writer):
@@ -337,7 +441,7 @@ class Writer(openmol.Writer):
 		super(Writer, self).__init__(MOL, data_file)
 
 	def title(self):
-		self.fp.write("%s (generated by OpenMOL lammps_full)\n\n" %self.MOL['title'])
+		self.fp.write("%s (by OpenMOL)\n\n" %self.MOL['title'])
 
 	def counts(self):
 		self.fp.write("%d atoms\n" %self.MOL['no_atoms'])

@@ -64,6 +64,11 @@ def initialize():
 	MOL['dihed_c'] = []
 	MOL['dihed_d'] = []
 
+	MOL['improper_a'] = []
+	MOL['improper_b'] = []
+	MOL['improper_c'] = []
+	MOL['improper_d'] = []
+
 	MOL['residue_name'] = []
 	MOL['residue_start'] = []
 	MOL['residue_end'] = []
@@ -93,6 +98,11 @@ def initialize():
 	MOL['FF_dihed_phase'] = []			# in radians
 	MOL['FF_dihed_periodicity'] = []
 	MOL['dihed_ff_index'] = []
+
+	MOL['FF_improper_k'] = []
+	MOL['FF_improper_phase'] = []		# in radians
+	MOL['FF_improper_periodicity'] = []
+	MOL['improper_ff_index'] = []
 
 	return AttrDict(MOL)
 
