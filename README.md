@@ -11,12 +11,8 @@ OpenMOL is a Python package to convert between popular molecular dynamics data f
 ## Installation
 You can install `openmol` directly from [PyPI](https://pypi.org/project/openmol) using `pip`.
 
-For the latest development version you can clone the [Git repository](https://github.com/akhlakm/OpenMOL).
-
 ```sh
-git clone https://github.com/akhlakm/OpenMOL
-cd OpenMOL
-pip install -e .
+pip install openmol
 ```
 
 ## Usage Examples
@@ -79,6 +75,14 @@ LAMMPS |   x    | Yes
 MOL2   |  Yes   | Yes
 
 *Contributions welcome!*
+
+For the latest development version you can clone the [Git repository](https://github.com/akhlakm/OpenMOL).
+
+```sh
+git clone https://github.com/akhlakm/OpenMOL
+cd OpenMOL
+pip install -e .
+```
 
 ## License
 GNU General Public License v3.0 (GPLv3.0)
