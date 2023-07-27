@@ -9,7 +9,7 @@ class AttrDict(dict):
     """ Adds a convenient way to access dictionary items
     as properties """
 
-    def __init__(self, d : dict = None):
+    def __init__(self, d : dict = {}):
         if type(d) == dict:
             for k,v in d.items():
                 self.__setattr__(k, v)
