@@ -8,7 +8,7 @@
 import openmol
 
 
-def initialize(new_items):
+def initialize(new_items : dict = {}):
 	""" Initialize an openmol object with TRIPOS MOL2
 		specific items. """
 
