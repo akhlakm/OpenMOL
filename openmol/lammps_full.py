@@ -14,7 +14,7 @@ import openmol
 # of the coordinates. This is the buffer for that.
 BOX_BUFFER = 3.0	# A
 
-def initialize(new_items):
+def initialize(new_items : dict = {}):
 	""" Initialize an empty openmol object with LAMMPS
 		specific items. """
 
@@ -190,7 +190,16 @@ class Reader(openmol.Reader):
 				print('Reading improper torsion list ...')
 				continue
 
-			if section == 'counts':
+			elif line.endswith('Coeffs'):
+				print('-- Warning: Coeffs reading not implemented yet:', line)
+				section = None
+				continue
+
+			if section is None:
+				# ignore the coeff sections for now.
+				continue
+
+			elif section == 'counts':
 				counts = re.findall(r'^(\d+)\s+([a-z]+)s$', line)
 				if counts:
 					counts = counts[0] # get the tuple/first match
@@ -422,6 +431,7 @@ class Writer(openmol.Writer):
 		super(Writer, self).__init__(MOL, data_file)
 
 	def title(self):
+		self.MOL['title'] = self.MOL['title'].replace("\n", " ")
 		self.fp.write("%s (by OpenMOL)\n\n" %self.MOL['title'])
 
 	def counts(self):
