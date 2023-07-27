@@ -70,14 +70,8 @@ def build(MOL):
 	MOL['no_angle_types'] = len(MOL['FF_angle_k'])
 	MOL['no_dihed_types'] = len(MOL['FF_dihed_k'])
 
-	# if we have individual atom masses list, build type's masses
-	if len(MOL['unique_atom_mass']) == 0 and len(MOL['atom_mass']):
-		for unique_atom in MOL['unique_atom_types']:
-			i = MOL['atom_type'].index(unique_atom)
-			MOL['unique_atom_mass'].append(MOL['atom_mass'][i])
-
-	if len(MOL['unique_atom_mass']) != MOL['no_atom_types']:
-		print('-- PARM7 Build Error: fail to build mass list, length mismatch.')
+	# Build the unique atom types
+	MOL['unique_atom_types'] = list(set(MOL['atom_type']))
 
 	# If we have A, B coeffs, build epsilon, sigma of parm7
 	if len(MOL['parm7_lj_acoeff']) and \
@@ -352,7 +346,6 @@ def process_last_section(MOL, section, lines, sformat):
 	elif section == 'LENNARD_JONES_BCOEF':
 		for i in items:
 			MOL['parm7_lj_bcoeff'].append(float(i))
-
 
 	print('OK')
 	return True
