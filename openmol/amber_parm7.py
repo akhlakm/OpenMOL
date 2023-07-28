@@ -510,6 +510,7 @@ def read_rst7(MOL, rst_file):
 	return MOL
 
 def read(prmtop, rst7):
+	print(f"\nReading {prmtop} and {rst7}")
 	MOL = read_prmtop(prmtop)
 	if not MOL:
 		return False
