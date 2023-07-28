@@ -347,6 +347,10 @@ def process_last_section(MOL, section, lines, sformat):
 		for i in items:
 			MOL['parm7_lj_bcoeff'].append(float(i))
 
+	else:
+		print('IGNORED')
+		return True
+
 	print('OK')
 	return True
 
