@@ -255,7 +255,7 @@ def read(mol2_file):
 				MOL['atom_resname'].append(parts[7])
 
 			if len(parts) > 8:
-				charge = round(float(parts[8]), 3)
+				charge = round(float(parts[8]), 4)
 				MOL['atom_q'].append(charge)
 
 			if len(parts) > 9:
@@ -350,7 +350,7 @@ class Writer(openmol.Writer):
 			}
 			atomstr =	"{id:>7d} {name:<5}  " \
 						"{x:>8.4f}  {y:>8.4f}  {z:>8.4f}   {type:>3} " \
-						"{resid:>3} {resname:<5}   {charge:>11.3f}\n"
+						"{resid:>3} {resname:<5}   {charge:>11.4f}\n"
 			self.fp.write(atomstr.format(**atom))
 
 	def bonds(self):
