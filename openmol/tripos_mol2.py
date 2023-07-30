@@ -304,8 +304,7 @@ def read(mol2_file):
 		else:
 			# unknown section
 			# @todo: extend here if needed
-			# print('-- Warning: Unknown section: %s ' %section)
-			pass
+			print('-- Ignored unknown MOL2 section: %s ' %section)
 
 	if not check_last_section(section, MOL):
 		return False
