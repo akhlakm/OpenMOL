@@ -16,9 +16,6 @@ class PDBReader(OpenMol.Reader):
 
     def read_file(self, pdb_file : str):
         super().read_file(pdb_file)
-        for k, v in self.Mol.items():
-            if v: print(k, v)
-
 
     def _identify_section(self, line_no: int, line: str, next_line : str):
         words = line.split()
@@ -166,8 +163,6 @@ class PDBReader(OpenMol.Reader):
             print("IGNORED")
 
 
-            
-
 class PDB:
     def __init__(self) -> None:
         self.Mol = OpenMol.AttrDict()
@@ -189,7 +184,8 @@ class PDB:
 
                 old_id = resid
                 self.Mol.atom_resid[i] = resid + offset
-    
+
+
     def read(self, file_path : str):
         reader = PDBReader()
         reader.read_file(file_path)
@@ -200,6 +196,8 @@ class PDB:
 if __name__ == '__main__':
     r = PDB()
     r.read("test.pdb")
+    # for k, v in r.Mol.items():
+    #     if v: print(k, v)
 
     from OpenMol.tripos_mol2 import Writer, build
     wr = Writer(build(r.Mol), "test.mol2")
