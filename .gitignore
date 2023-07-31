@@ -28,3 +28,5 @@ dist/
 .ipynb_checkpoints/
 
 *.ipynb
+
+test.*
