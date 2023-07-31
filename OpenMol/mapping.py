@@ -1,8 +1,8 @@
 import os
 import json
 
-import openmol
-import openmol.tripos_mol2 as mol2
+import OpenMol
+import OpenMol.tripos_mol2 as mol2
 
 
 class FFMap:
@@ -23,7 +23,7 @@ class FFMap:
 
     def _read(self, filepath):
         if filepath.endswith(".json"):
-            return openmol.load_json(filepath)
+            return OpenMol.load_json(filepath)
         elif filepath.endswith(".mol2"):
             molecule = mol2.read(filepath)
             molecule = mol2.build(molecule)
