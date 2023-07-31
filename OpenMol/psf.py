@@ -5,12 +5,12 @@
     This file is a part of OpenMOL python module.
     License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
 
-import openmol
+import OpenMol
 
-class Reader(openmol.Reader):
+class Reader(OpenMol.Reader):
     def __init__(self):
         super(Reader, self).__init__()
-        self.Mol = openmol.AttrDict()
+        self.Mol = OpenMol.AttrDict()
         self.Mol['source_format'] = "PSF"
         self.Mol['_psf_built'] = False
         self.Mol['atom_q'] = []
@@ -22,8 +22,8 @@ class Reader(openmol.Reader):
         self.Mol['atom_molecule'] = []
 
     def read(self, psf_file : str):
-        super(Reader, self).read(psf_file)
-        print("-- Warning: only atoms section is currently implemented")
+        super(Reader, self).read_file(psf_file)
+        print("-- Warning: only atoms and bonds section is implemented")
         self._process_lines()
 
     def _parse_str_as_type(self, string : str, dtype : callable, line, i):
@@ -61,6 +61,11 @@ class Reader(openmol.Reader):
             if words[1] == "!NATOM" and section is None:
                 # atom list
                 section = 'atom'
+                continue
+
+            if words[1] == "!BOND" and section is None:
+                # bond list
+                section = 'bond'
                 continue
 
             elif section == 'atom':

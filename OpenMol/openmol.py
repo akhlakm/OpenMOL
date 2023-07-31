@@ -215,18 +215,28 @@ class Reader(object):
     """ Base file reader interface to implement in different
         Reader classes. """
 
-    def __init__(self, input_file : str = None):
+    def __init__(self):
         self.Mol = initialize()
-        self.in_file = input_file
+        self.in_file = None
         self.lines = []
+        self.section = None
+        self.section_start = 0
+        self.section_lines = []
+        self.section_format = None
 
-    def read(self, input_file : str = None):
+
+    def read_file(self, input_file : str = None):
         if input_file is not None:
             self.in_file = input_file
         self.lines = open(self.in_file).readlines()
+        print('Reading:', input_file)
+        self._process_lines()
+        print('Read OK:', input_file)
+        return self.Mol
+
 
     def as_df(self, prefix = 'atom_', fields = []):
-        """ Return the PSF info section as a Pandas dataframe. """
+        """ Return the Mol info section as a Pandas dataframe. """
         if fields:
             return pd.DataFrame({
                 k : v for k, v in self.Mol.items() if k in fields
@@ -235,6 +245,57 @@ class Reader(object):
             return pd.DataFrame({
                 k : v for k, v in self.Mol.items() if k.startswith(prefix)
             })
+
+
+    def _process_lines(self):
+        for line_no, line in enumerate(self.lines):
+            line = line.strip()
+            try:
+                next_line = self.lines[line_no+1]
+                next_line = next_line.strip()
+            except:
+                next_line = None
+            if len(line) == 0:
+                continue
+            self._identify_section(line_no+1, line, next_line)
+            self.section_lines.append(line)
+
+        self._process_last_section(self.section, self.section_lines,
+                                   self.section_format)
+
+
+    def _identify_section(self, line_no : int, line : str, next_line : str) -> None:
+        raise NotImplementedError()
+
+
+    def _new_section(self, section : str, line_no : int, section_format = None):
+        """ Declare the start of a new section. """
+        if section == self.section:
+            return
+        if self.section is not None:
+            self._process_last_section(self.section, self.section_lines,
+                                    self.section_format)
+        self.section = section
+        self.section_start = line_no
+        self.section_format = section_format
+        self.section_lines = []
+        print('- Section: %s ...' %section, end=' ')
+
+
+    def _process_last_section(self, section : str, lines : list, sformat : str):
+        """ Parse and process the last read section of file """
+        print('IGNORED')
+
+
+    def _str_to_type(self, string : str, dtype : callable, line, line_no):
+        errstr  = f"failed to parse {string} as {dtype}, "
+        errstr += f"line {line_no}: {line}"
+        try:
+            value = dtype(string)
+        except TypeError:
+            raise TypeError(errstr)
+        return value
+
 
 class Writer(object):
     """ Base file writer interface to implement in different
