@@ -128,27 +128,34 @@ class PDBReader(OpenMol.Reader):
             print("OK")
 
         elif section == 'conect':
+            unique = []
             for i, line in enumerate(lines):
                 ln = self.section_start + i
                 words = line.strip().split()
                 if words[1] != 'CONECT': continue
-                bond_from = self._str_to_type(words[2], int, line, ln) - 1
+                bn_from = self._str_to_type(words[2], int, line, ln) - 1
                 for other in words[3:]:
-                    bond_type = 1
-                    bond_tacticity = 0
+                    bn_type = 1
+                    tacticity = 0
                     if ":" in other and other.count(":") == 1:
-                        bond_to, bond_type = other.split(":")
+                        bn_to, bn_type = other.split(":")
                     elif ":" in other and other.count(":") == 2:
-                        bond_to, bond_type, bond_tacticity = other.split(":")
+                        bn_to, bn_type, tacticity = other.split(":")
                     else:
-                        bond_to = other
+                        bn_to = other
 
-                    bond_to = self._str_to_type(bond_to, int, line, ln) - 1
-                    bond_type = self._str_to_type(bond_type, int, line, ln) # type: ignore
-                    self.Mol.bond_from.append(bond_from)
-                    self.Mol.bond_to.append(bond_to)
-                    self.Mol.bond_type.append(bond_type)
-                    self.Mol.bond_tacticity.append(bond_tacticity)
+                    bn_to = self._str_to_type(bn_to, int, line, ln) - 1
+                    bn_type = self._str_to_type(bn_type, int, line, ln) # type: ignore
+                    forward = (bn_from, bn_to, bn_type, tacticity)
+                    reverse = (bn_to, bn_from, bn_type, tacticity)
+                    if reverse not in unique:
+                        unique.append(forward)
+
+            for item in unique:
+                self.Mol.bond_from.append(item[0])
+                self.Mol.bond_to.append(item[1])
+                self.Mol.bond_type.append(item[2])
+                self.Mol.bond_tacticity.append(item[3])
 
             print("OK")
 
@@ -164,11 +171,36 @@ class PDBReader(OpenMol.Reader):
 class PDB:
     def __init__(self) -> None:
         self.Mol = OpenMol.AttrDict()
+
+    def build(self):
+        unique_resids = list(set(self.Mol.atom_resid))
+
+        # Fix atom resids order.
+        # resid should increase all the times.
+        if len(unique_resids) > 1:
+            offset = 0
+            old_id = 0
+            for i, resid in enumerate(self.Mol.atom_resid):
+                if old_id > resid and resid == 0:
+                    print('-- ResID restarted at atom %d' %(i+1))
+                    offset += old_id - resid + 1
+                elif old_id > resid and resid != 0:
+                    ValueError("Invalid ResID order at atom %d" %(i+1))
+
+                old_id = resid
+                self.Mol.atom_resid[i] = resid + offset
     
     def read(self, file_path : str):
-        pass
+        reader = PDBReader()
+        reader.read_file(file_path)
+        self.Mol = reader.Mol
+        self.build()
 
 
 if __name__ == '__main__':
-    r = PDBReader()
-    r.read_file("test.pdb")
+    r = PDB()
+    r.read("test.pdb")
+
+    from OpenMol.tripos_mol2 import Writer, build
+    wr = Writer(build(r.Mol), "test.mol2")
+    wr.write()
