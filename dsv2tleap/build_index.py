@@ -41,7 +41,7 @@ if len(sys.argv) < 2:
 	print_usage()
 
 try:
-	import openmol
+	import OpenMol
 except ImportError:
 	print("Failed to import openmol. Please add to PYTHONPATH, or update sys.path.")
 	raise
@@ -103,11 +103,11 @@ for pc in pc_orig:
 	print(pc, " <-- ", pc_orig[pc])
 
 say("Saving pc_orig")
-openmol.write_json(pc_orig, "pc_orig.json")
+OpenMol.write_json(pc_orig, "pc_orig.json")
 done()
 
 say("Saving orig_pc")
-openmol.write_json(orig_pc, "orig_pc.json")
+OpenMol.write_json(orig_pc, "orig_pc.json")
 done()
 
 print("Please use the written dsv_ MOL2 files for system building.")

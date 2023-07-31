@@ -35,8 +35,8 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["openmol"]
+packages = ["OpenMol"]
 
 [tool.setuptools.dynamic]
-version = {attr = "openmol.__version__"}
+version = {attr = "OpenMol.__version__"}
 dependencies = {file = ["requirements.txt"]}
