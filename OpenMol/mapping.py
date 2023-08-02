@@ -33,7 +33,7 @@ class FFMap:
 
     def save_mapping(self, filename="ff.map.json"):
         with open(filename, "w+") as fp:
-            json.dump(self.__dict__, fp)
+            json.dump(self.__dict__, fp, indent=2)
 
     def load_mapping(self, filename="ff.map.json"):
         with open(filename, "r") as fp:
