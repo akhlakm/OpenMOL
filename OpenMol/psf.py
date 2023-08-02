@@ -23,7 +23,7 @@ class Reader(OpenMol.Reader):
 
     def read(self, psf_file : str):
         super(Reader, self).read_file(psf_file)
-        print("-- Warning: only atoms and bonds section is implemented")
+        print("-- Warning: only atoms section is implemented")
         self._process_lines()
 
     def _parse_str_as_type(self, string : str, dtype : callable, line, i):
