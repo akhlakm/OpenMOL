@@ -3,7 +3,7 @@ import OpenMol
 class PDBReader(OpenMol.Reader):
     def __init__(self):
         super().__init__()
-        self.Mol['source_format'] = "PSF"
+        self.Mol['source_format'] = "PDB"
         self.Mol['_pdb_built'] = False
         self.Mol['comment'] = ""
         self.Mol['atom_segment'] = []
@@ -22,33 +22,33 @@ class PDBReader(OpenMol.Reader):
         nextwords = next_line.split() if next_line else []
         if words[0] == 'REMARK' and self.section is None:
             # header/title
-            self._new_section('remark', line_no)
+            self._new_section('REMARK', line_no)
 
         elif words[0] == 'CRYST1':
-            self._new_section('cyrst', line_no)
+            self._new_section('CRYST1', line_no)
 
         elif words[0] == 'ATOM':
-            self._new_section('atom', line_no)
+            self._new_section('ATOM', line_no)
 
         elif words[0] == 'REMARK':
             # look ahead
             if len(nextwords) > 1 and nextwords[1] == "CONECT":
-                self._new_section('conect', line_no)
+                self._new_section('CONECT', line_no)
             elif len(nextwords) > 1 and nextwords[1] == "RESCON":
-                self._new_section('rescon', line_no)
+                self._new_section('RESCON', line_no)
             elif len(nextwords) > 1 and nextwords[1] == "SEGRNG":
-                self._new_section('segrng', line_no)
+                self._new_section('SEGRNG', line_no)
         
         elif words[0] == 'END':
-            self._new_section('end', line_no)
+            self._new_section('END', line_no)
 
 
     def _process_last_section(self, section: str, lines: list, sformat: str):
-        if section == 'remark':
+        if section == 'REMARK':
             self.Mol.comment += " ".join(line[7:].strip() for line in lines)
             print("OK")
 
-        elif section == 'cyrst':
+        elif section == 'CRYST1':
             words = lines[0].split()
             self.Mol['box_x'] = self._str_to_type(
                                 words[1], float, lines[0], self.section_start)
@@ -64,7 +64,7 @@ class PDBReader(OpenMol.Reader):
                                 words[6], float, lines[0], self.section_start)
             print("OK")
 
-        elif section == 'atom':
+        elif section == 'ATOM':
             for i, line in enumerate(lines):
                 ln = self.section_start + i
                 # Try to follow the wwpdb standard.
@@ -124,7 +124,7 @@ class PDBReader(OpenMol.Reader):
 
             print("OK")
 
-        elif section == 'conect':
+        elif section == 'CONECT':
             unique = []
             for i, line in enumerate(lines):
                 ln = self.section_start + i
@@ -156,7 +156,7 @@ class PDBReader(OpenMol.Reader):
 
             print("OK")
 
-        elif section == 'end':
+        elif section == 'END':
             print("OK")
 
         else:
@@ -177,13 +177,15 @@ class PDB:
             old_id = 0
             for i, resid in enumerate(self.Mol.atom_resid):
                 if old_id > resid and resid == 0:
-                    print('-- ResID restarted at atom %d' %(i+1))
+                    print('- ResID restarted at atom %d' %(i+1))
                     offset += old_id - resid + 1
                 elif old_id > resid and resid != 0:
                     ValueError("Invalid ResID order at atom %d" %(i+1))
 
                 old_id = resid
                 self.Mol.atom_resid[i] = resid + offset
+
+        self.Mol['_pdb_built'] = True
 
 
     def read(self, file_path : str):
