@@ -162,6 +162,7 @@ def read(mol2_file):
 	name_ok = False
 	summary_ok = False
 
+	print("\nReading:", mol2_file)
 
 	for line in open(mol2_file, 'r'):
 
