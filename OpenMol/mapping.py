@@ -49,15 +49,19 @@ class FFMap:
         for i, atom_name in enumerate(mol.atom_name):
             atom_type = mol.atom_type[i]
             atom_charge = mol.atom_q[i]
+            resname = mol.atom_resname[i][:3]
 
             if atom_type not in self.ff1_type2name:
-                self.ff1_type2name[atom_type] = atom_name
+                key = f"{resname}>{atom_type}"
+                self.ff1_type2name[key] = atom_name
 
             if atom_name not in self.ff1_name2type:
-                self.ff1_name2type[atom_name] = atom_type
+                key = f"{resname}>{atom_name}"
+                self.ff1_name2type[key] = atom_type
 
             if atom_name not in self.ff1_name2charge:
-                self.ff1_name2charge[atom_name] = atom_charge
+                key = f"{resname}>{atom_name}"
+                self.ff1_name2charge[key] = atom_charge
 
 
     def load_ff2_file(self, filepath):
@@ -68,12 +72,16 @@ class FFMap:
         for i, atom_name in enumerate(mol.atom_name):
             atom_type = mol.atom_type[i]
             atom_charge = mol.atom_q[i]
+            resname = mol.atom_resname[i][:3]
 
             if atom_type not in self.ff2_type2name:
-                self.ff2_type2name[atom_type] = atom_name
+                key = f"{resname}>{atom_type}"
+                self.ff2_type2name[key] = atom_name
 
             if atom_name not in self.ff2_name2type:
-                self.ff2_name2type[atom_name] = atom_type
+                key = f"{resname}>{atom_name}"
+                self.ff2_name2type[key] = atom_type
 
             if atom_name not in self.ff2_name2charge:
-                self.ff2_name2charge[atom_name] = atom_charge
+                key = f"{resname}>{atom_name}"
+                self.ff2_name2charge[key] = atom_charge
