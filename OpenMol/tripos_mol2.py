@@ -362,6 +362,11 @@ class Writer(OpenMol.Writer):
 				'to': self.MOL['bond_to'][i] + 1,
 				'type': self.MOL['bond_type'][i],
 			}
+
+			# Aromatic bonds
+			if bond['type'] in [1.5, 'ar']:
+				bond['type'] = 'ar'
+
 			bondstr =	"{id:>7d}  {from:>7d}  {to:>7d}   {type:>3} \n"
 			self.fp.write(bondstr.format(**bond))
 

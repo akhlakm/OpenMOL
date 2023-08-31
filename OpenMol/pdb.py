@@ -142,7 +142,10 @@ class PDBReader(OpenMol.Reader):
                         bn_to = other
 
                     bn_to = self._str_to_type(bn_to, int, line, ln) - 1
-                    bn_type = self._str_to_type(bn_type, int, line, ln) # type: ignore
+                    if bn_type == "1.5":
+                        bn_type = 'ar'
+                    else:
+                        bn_type = self._str_to_type(bn_type, int, line, ln) # type: ignore
                     forward = (bn_from, bn_to, bn_type, tacticity)
                     reverse = (bn_to, bn_from, bn_type, tacticity)
                     if reverse not in unique:
