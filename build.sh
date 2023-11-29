@@ -19,7 +19,7 @@ bump() {
     sed -i "s/\(__version__ = \"\)[^\"]*\"/\1$VERSION\"/" openmol/__init__.py
     grep __version__ openmol/__init__.py
     git add openmol/__init__.py
-    git commit -m "Bump to version $VERSION"
+    # git commit -m "Bump to version $VERSION"
 }
 
 tag() {
