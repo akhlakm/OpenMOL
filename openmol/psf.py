@@ -5,12 +5,12 @@
     This file is a part of OpenMOL python module.
     License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
 
-import OpenMol
+import OpenMOL.openmol.core as core
 
-class Reader(OpenMol.Reader):
+class Reader(core.Reader):
     def __init__(self):
         super(Reader, self).__init__()
-        self.Mol = OpenMol.AttrDict()
+        self.Mol = core.AttrDict()
         self.Mol['source_format'] = "PSF"
         self.Mol['_psf_built'] = False
         self.Mol['atom_q'] = []

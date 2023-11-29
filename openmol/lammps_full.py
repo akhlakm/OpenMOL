@@ -7,7 +7,7 @@
 
 import re
 import math
-import OpenMol
+import OpenMOL.openmol.core as core
 
 # If box info is not set in openmol object
 # we may need to estimate form the max and min value
@@ -18,7 +18,7 @@ def initialize(new_items : dict = {}):
 	""" Initialize an empty openmol object with LAMMPS
 		specific items. """
 
-	MOL = OpenMol.initialize()
+	MOL = core.initialize()
 	MOL['source_format'] = "LAMMPS FULL"
 	MOL['no_bond_types'] = 0
 	MOL['no_angle_types'] = 0
@@ -98,7 +98,7 @@ def build(MOL):
 	return MOL
 
 
-class Reader(OpenMol.Reader):
+class Reader(core.Reader):
 	def __init__(self):
 		super(Reader, self).__init__()
 		self.Mol['source_format'] = "LAMMPS FULL"
@@ -109,7 +109,7 @@ class Reader(OpenMol.Reader):
 		super(Reader, self).read_file(lammps_data_file)
 		self._process_lines()
 		print("-- WARN: FF params reading is not currently implemented")
-		OpenMol.check(self.Mol)
+		core.check(self.Mol)
 
 	def build(self):
 		self.Mol = build(self.Mol)
@@ -425,7 +425,7 @@ class Reader(OpenMol.Reader):
 		print("Read OK")
 
 
-class Writer(OpenMol.Writer):
+class Writer(core.Writer):
 	def __init__(self, MOL, data_file):
 		# open the file for writing
 		super(Writer, self).__init__(MOL, data_file)

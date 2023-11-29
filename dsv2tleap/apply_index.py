@@ -11,7 +11,7 @@ import json
 sys.path.append("..")
 
 try:
-	import OpenMol
+	import openmol
 except ImportError:
 	print("Failed to import openmol. Please add to PYTHONPATH, or update sys.path.")
 	raise
@@ -96,7 +96,7 @@ else:
 unit['title'] = "PC index applied DSV system for tleap"
 
 # redo counting of items
-unit = OpenMol.update_summary(unit)
+unit = openmol.update_summary(unit)
 
 # rebuild mol2 items for writing
 unit = mol2.build(unit)

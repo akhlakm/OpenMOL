@@ -7,7 +7,7 @@
 
 import math
 
-import OpenMol
+import OpenMOL.openmol.core as core
 from . import lammps_full as lmp 
 
 
@@ -15,11 +15,11 @@ def initialize():
 	""" Initialize an empty openmol object with LAMMPS qmag
 		specific items. """
 
-	MOL = OpenMol.initialize()
+	MOL = core.initialize()
 	MOL = dict(lmp.initialize(), **MOL)
 	MOL['source_format'] = "LAMMPS QMAG"
 	MOL['atom_qm'] = []
-	return OpenMol.AttrDict(MOL)
+	return core.AttrDict(MOL)
 
 
 def build(MOL):
@@ -30,7 +30,7 @@ def build(MOL):
 		MOL['atom_qm'] = [0.0 for i in range(MOL['no_atoms'])]
 
 	MOL['_lammps_qmag_built'] = True
-	return OpenMol.AttrDict(MOL)
+	return core.AttrDict(MOL)
 
 
 def qm_for_index(MOL, ix, qm):

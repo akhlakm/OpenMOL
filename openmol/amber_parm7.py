@@ -5,7 +5,7 @@
 	This file is a part of OpenMOL python module.
 	License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
 
-import OpenMol
+import OpenMOL.openmol.core as core
 
 # AMBER PARM7 pointers list
 # See http://ambermd.org/formats.html
@@ -23,7 +23,7 @@ def initialize():
 	""" Initialize an openmol object with Amber
 		specific items. """
 
-	MOL = OpenMol.initialize()
+	MOL = core.initialize()
 	MOL['source_format'] = "AMBER PARM7"
 
 	MOL['parm_version_string'] = None
@@ -135,7 +135,7 @@ def build(MOL):
 		print('-- PARM7 Build Error: fail to build pair coeffs, length mismatch.')
 
 	MOL['_parm7_built'] = True
-	return OpenMol.AttrDict(MOL)
+	return core.AttrDict(MOL)
 
 
 def process_last_section(MOL, section, lines, sformat):
@@ -516,7 +516,7 @@ def read(prmtop, rst7):
 		return False
 	
 	MOL = read_rst7(MOL, rst7)
-	if not OpenMol.check(MOL):
+	if not core.check(MOL):
 		return False
 
 	return MOL

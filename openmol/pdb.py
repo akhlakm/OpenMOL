@@ -1,6 +1,6 @@
-import OpenMol
+import OpenMOL.openmol.core as core
 
-class PDBReader(OpenMol.Reader):
+class PDBReader(core.Reader):
     def __init__(self):
         super().__init__()
         self.Mol['source_format'] = "PDB"
@@ -168,7 +168,7 @@ class PDBReader(OpenMol.Reader):
 
 class PDB:
     def __init__(self) -> None:
-        self.Mol = OpenMol.AttrDict()
+        self.Mol = core.AttrDict()
 
     def build(self):
         unique_resids = list(set(self.Mol.atom_resid))
@@ -204,6 +204,6 @@ if __name__ == '__main__':
     # for k, v in r.Mol.items():
     #     if v: print(k, v)
 
-    from OpenMol.tripos_mol2 import Writer, build
+    from openmol.tripos_mol2 import Writer, build
     wr = Writer(build(r.Mol), "test.mol2")
     wr.write()

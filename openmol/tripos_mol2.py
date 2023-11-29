@@ -5,14 +5,14 @@
 	This file is a part of OpenMOL python module.
 	License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
 
-import OpenMol
+import OpenMOL.openmol.core as core
 
 
 def initialize(new_items : dict = {}):
 	""" Initialize an openmol object with TRIPOS MOL2
 		specific items. """
 
-	MOL = OpenMol.initialize()
+	MOL = core.initialize()
 
 	MOL['source_format'] = 'TRIPOS MOL2'
 
@@ -125,7 +125,7 @@ def check_last_section(section, MOL):
 	""" Parse and process the last read section """
 
 	if section == 'ATOM':
-		if not OpenMol.check_atoms_ok(MOL):
+		if not core.check_atoms_ok(MOL):
 			# @todo: do this check here
 			return False
 		else:
@@ -133,12 +133,12 @@ def check_last_section(section, MOL):
 			MOL['unique_atom_types'] = list(unique_atom_types)
 
 	elif section == 'BOND':
-		if not OpenMol.check_bonds_ok(MOL):
+		if not core.check_bonds_ok(MOL):
 			# @todo: do this check here
 			return False
 
 	elif section == 'SUBSTRUCTURE':
-		if not OpenMol.check_residues_ok(MOL):
+		if not core.check_residues_ok(MOL):
 			# @todo: do this check here
 			return False
 
@@ -314,7 +314,7 @@ def read(mol2_file):
 	return MOL
 
 
-class Writer(OpenMol.Writer):
+class Writer(core.Writer):
 	""" 	Write a TRIPOS MOL2 file using the OpenMOL object data.
 			All indices are incremented by 1 to follow 1 based
 			indexing in MOL2 format. """

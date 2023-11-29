@@ -12,10 +12,10 @@
 import sys
 sys.path.append("..")
 
-import OpenMol
-from OpenMol import amber_parm7 as parm 
-from OpenMol import lammps_qmag as lammps
-from OpenMol import tripos_mol2 as mol2
+import openmol
+from openmol import amber_parm7 as parm 
+from openmol import lammps_qmag as lammps
+from openmol import tripos_mol2 as mol2
 
 # read amber parm files
 p = parm.read('oleylamine.prmtop', 'oleylamine.rst7')
@@ -31,5 +31,5 @@ mol = mol2.Writer(p, 'oleylamine.mol2')
 mol.write()
 
 # save everything as openmol json file
-OpenMol.write_json(p, 'oleylamine.json')
+openmol.write_json(p, 'oleylamine.json')
 
