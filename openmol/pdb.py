@@ -1,4 +1,4 @@
-import OpenMOL.openmol.core as core
+from openmol import core
 
 class PDBReader(core.Reader):
     def __init__(self):

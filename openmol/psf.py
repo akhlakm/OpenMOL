@@ -5,7 +5,7 @@
     This file is a part of OpenMOL python module.
     License GPLv3.0 Copyright (c) 2023 Akhlak Mahmood """
 
-import OpenMOL.openmol.core as core
+from openmol import core
 
 class Reader(core.Reader):
     def __init__(self):

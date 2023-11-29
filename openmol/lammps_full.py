@@ -7,7 +7,7 @@
 
 import re
 import math
-import OpenMOL.openmol.core as core
+from openmol import core
 
 # If box info is not set in openmol object
 # we may need to estimate form the max and min value

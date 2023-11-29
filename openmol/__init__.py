@@ -2,9 +2,9 @@ __version__ = "1.2.1"
 __author__ 	= "Akhlak Mahmood, Yingling Group, MSE, NCSU"
 
 from .utils import AttrDict
-from .openmol import initialize, Writer, Reader
-from .openmol import check, update_summary
-from .openmol import check_atoms_ok, check_bonds_ok, check_residues_ok
-from .openmol import write_json, load_json
+from .core import initialize, Writer, Reader
+from .core import check, update_summary
+from .core import check_atoms_ok, check_bonds_ok, check_residues_ok
+from .core import write_json, load_json
 
-del openmol, utils
+del core, utils

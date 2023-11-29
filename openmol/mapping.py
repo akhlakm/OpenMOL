@@ -1,7 +1,6 @@
-import os
 import json
 
-import OpenMOL.openmol.core as core
+from openmol import core
 import openmol.tripos_mol2 as mol2
 
 
