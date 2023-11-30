@@ -47,7 +47,7 @@ def build(MOL):
 	# case when resnames are defined in substruct section
 	# but not in atoms
 	if len(MOL['atom_resname']) == 0:
-		print("-- Warning: atom residue info missing. Building from residue list.\n")
+		# print("-- Warning: atom residue info missing. Building from residue list.\n")
 		for r, st in enumerate(MOL['residue_start']):
 			res = MOL['residue_name'][r]
 
@@ -87,7 +87,7 @@ def build(MOL):
 	# Fix residue list
 	# case when resnames/ids are defined in atoms section
 	if len(MOL['residue_start']) != len(unique_resids):
-		print("-- Warning: residue list trancated. Building from atoms residue info.\n")
+		# print("-- Warning: residue list trancated. Building from atoms residue info.\n")
 		current_id = 0
 		MOL['residue_start'] = []
 		MOL['residue_type'] = []
@@ -142,7 +142,7 @@ def check_last_section(section, MOL):
 			# @todo: do this check here
 			return False
 
-	print('OK')
+	# print('OK')
 	return True
 
 
@@ -191,7 +191,7 @@ def read(mol2_file):
 					return False
 
 				section = parts[1]
-				print('Reading %s ...' %section, end=' ')
+				# print('Reading %s ...' %section, end=' ')
 				section_line_no = 0
 				continue
 
