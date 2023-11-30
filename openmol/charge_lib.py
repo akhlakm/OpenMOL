@@ -107,6 +107,44 @@ def unique_charge_dict(mol, charge_dict) -> dict:
     return cc
     
 
+
+
+def create_lib_files(libpath, charge_dict = None):
+    """ Create the output lib and err files.
+        If a charge_dict is given, use that, otherwise load the json file.
+    """
+    if charge_dict is None:
+        # Load the charges from json file.
+        outputjson = os.path.join(libpath, "charges.json")
+        with open(outputjson) as fp:
+            charge_dict = json.load(fp)
+    
+    assert type(charge_dict) == dict 
+    print("Total atom signatures:", len(charge_dict))
+
+    outputlib = os.path.join(libpath, "charges.lib")
+    outputerr = os.path.join(libpath, "charges.err")
+
+    # Use the mean values for prediction.
+    charge_lib = {}
+    for k, v in charge_dict.items():
+        charge_lib[k] = np.mean(v)
+
+    # If std err is too high, the charges will not be reliable.
+    charge_err = {}
+    for k, v in charge_dict.items():
+        charge_err[k] = np.std(v)
+
+    # Save as a separate lib and err files.
+    with open(outputlib, "w") as fp:
+        json.dump({k : v for k, v in sorted(charge_lib.items())}, fp, indent=4)
+    print("Saved:", outputlib)
+
+    with open(outputerr, "w") as fp:
+        json.dump({k : v for k, v in sorted(charge_err.items())}, fp, indent=4)
+    print("Saved:", outputerr)
+
+
 def create_charge_dir(libdir, libpath):
     """ Read all the mol2 files in a directory.
         Create unique identifier of each atom.
@@ -119,7 +157,6 @@ def create_charge_dir(libdir, libpath):
 
     """
     outputjson = os.path.join(libpath, "charges.json")
-    outputlib = os.path.join(libpath, "charges.lib")
     
     if os.path.isfile(outputjson):
         with open(outputjson) as fp:
@@ -139,17 +176,8 @@ def create_charge_dir(libdir, libpath):
         json.dump({k: v for k, v in charge_dict.items()}, fp)
 
     print("Saved:", outputjson)
+    create_lib_files(libpath, charge_dict)
 
-    # If std is too high, the charges will not be reliable.
-    charge_lib = {}
-    for k, v in charge_dict.items():
-        charge_lib[k] = np.mean(v) #[np.mean(v), np.std(v)]
-
-    # Save as a separate lib file.
-    with open(outputlib, "w") as fp:
-        json.dump(
-            {k: v for k, v in charge_lib.items()}, fp, indent=4)
-    print("Saved:", outputlib)
 
 
 def create_charge_file(mol2file, libpath):
@@ -183,25 +211,7 @@ def create_charge_file(mol2file, libpath):
         json.dump({k: v for k, v in charge_dict.items()}, fp)
 
     print("Saved:", outputjson)
-
-    # Use the mean values for prediction.
-    charge_lib = {}
-    for k, v in charge_dict.items():
-        charge_lib[k] = np.mean(v) #[np.mean(v), np.std(v)]
-
-    # If std err is too high, the charges will not be reliable.
-    charge_err = {}
-    for k, v in charge_dict.items():
-        charge_err[k] = np.std(v)
-
-    # Save as a separate lib and err files.
-    with open(outputlib, "w") as fp:
-        json.dump({k : v for k, v in sorted(charge_lib)}, fp, indent=4)
-    print("Saved:", outputlib)
-
-    with open(outputerr, "w") as fp:
-        json.dump({k : v for k, v in sorted(charge_err)}, fp, indent=4)
-    print("Saved:", outputerr)
+    create_lib_files(libpath, charge_dict)
 
 
 def calculate_charges(mol2file, outfile = None, libpath="."):
@@ -258,12 +268,19 @@ if __name__ == '__main__':
         help="Output MOL2 file to store the charges.")
 
     parser.add_argument(
+        '-b', '--build', default=False, action='store_true',
+        help="Specify to build the charge.lib and charge.err files.")
+
+    parser.add_argument(
         '-l', '--libpath', default=".",
         help="Directory to charges.json and charges.lib files.")
 
     args = parser.parse_args()
 
-    if args.dir:
+    if args.build:
+        create_lib_files(args.libpath)
+
+    elif args.dir:
         # Update the charges.lib by parsing exisiting mol2 files.
         create_charge_dir(args.dir, args.libpath)
 
