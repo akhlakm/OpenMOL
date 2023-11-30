@@ -142,7 +142,7 @@ def check_last_section(section, MOL):
 			# @todo: do this check here
 			return False
 
-	print('OK.')
+	print('OK')
 	return True
 
 
@@ -162,7 +162,7 @@ def read(mol2_file):
 	name_ok = False
 	summary_ok = False
 
-	print("\nReading:", mol2_file)
+	print("\nReading:", mol2_file, end=' ... ')
 
 	for line in open(mol2_file, 'r'):
 
@@ -326,7 +326,7 @@ class Writer(core.Writer):
 	def molecule(self):
 		self.fp.write('@<TRIPOS>MOLECULE\n')
 		molecstr = 	"{title}\n" \
-					"{no_atoms:>5d} {no_bonds:>5d} {no_residues:>5d}\n" \
+					"{no_atoms:>5d} {no_bonds:>5d} {no_residues:>5d} 0 0\n" \
 					"{type}\n" \
 					"{charge_type}\n\n"
 
@@ -386,8 +386,8 @@ class Writer(core.Writer):
 	# @extend: add additional sections if needed
 
 	def write(self):
-		if not self.MOL.get('_mol2_built', False):
-			print('-- Warning: call tripos_mol2.build(MOL) before writing. Continuing anyway ...')
+		# if not self.MOL.get('_mol2_built', False):
+		# 	print('-- Warning: call tripos_mol2.build(MOL) before writing. Continuing anyway ...')
 
 		self.molecule()
 		self.atoms()
