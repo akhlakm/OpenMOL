@@ -109,21 +109,21 @@ def unique_charge_dict(mol, charge_dict) -> dict:
 
 
 
-def create_lib_files(libpath, charge_dict = None):
+def create_lib_files(lib_prefix, charge_dict = None):
     """ Create the output lib and err files.
         If a charge_dict is given, use that, otherwise load the json file.
     """
     if charge_dict is None:
         # Load the charges from json file.
-        outputjson = os.path.join(libpath, "charges.json")
+        outputjson = lib_prefix + ".json"
         with open(outputjson) as fp:
             charge_dict = json.load(fp)
     
     assert type(charge_dict) == dict 
     print("Total atom signatures:", len(charge_dict))
 
-    outputlib = os.path.join(libpath, "charges.lib")
-    outputerr = os.path.join(libpath, "charges.err")
+    outputlib = lib_prefix + ".lib"
+    outputerr = lib_prefix + ".err"
 
     # Use the mean values for prediction.
     charge_lib = {}
@@ -145,7 +145,7 @@ def create_lib_files(libpath, charge_dict = None):
     print("Saved:", outputerr)
 
 
-def create_charge_dir(libdir, libpath):
+def create_charge_dir(libdir, lib_prefix):
     """ Read all the mol2 files in a directory.
         Create unique identifier of each atom.
         Create a map of atomic charges using the identifiers.
@@ -156,7 +156,7 @@ def create_charge_dir(libdir, libpath):
         charges for each atoms. So we average them out.
 
     """
-    outputjson = os.path.join(libpath, "charges.json")
+    outputjson = lib_prefix + ".json"
     
     if os.path.isfile(outputjson):
         with open(outputjson) as fp:
@@ -176,11 +176,11 @@ def create_charge_dir(libdir, libpath):
         json.dump({k: v for k, v in charge_dict.items()}, fp)
 
     print("Saved:", outputjson)
-    create_lib_files(libpath, charge_dict)
+    create_lib_files(lib_prefix, charge_dict)
 
 
 
-def create_charge_file(mol2file, libpath):
+def create_charge_file(mol2file, lib_prefix):
     """ Read the mol2 file.
         Create unique identifier of each atom.
         Create a map of atomic charges using the identifiers.
@@ -191,9 +191,7 @@ def create_charge_file(mol2file, libpath):
         charges for each atoms. So we average them out.
 
     """
-    outputjson = os.path.join(libpath, "charges.json")
-    outputlib = os.path.join(libpath, "charges.lib")
-    outputerr = os.path.join(libpath, "charges.err")
+    outputjson = lib_prefix + ".json"
 
     if os.path.isfile(outputjson):
         with open(outputjson) as fp:
@@ -211,10 +209,10 @@ def create_charge_file(mol2file, libpath):
         json.dump({k: v for k, v in charge_dict.items()}, fp)
 
     print("Saved:", outputjson)
-    create_lib_files(libpath, charge_dict)
+    create_lib_files(lib_prefix, charge_dict)
 
 
-def calculate_charges(mol2file, outfile = None, libpath="."):
+def calculate_charges(mol2file, outfile = None, lib_prefix="charges"):
     """ Calculate charges based on atomic connectivity using the
         charges.lib file. Output as a mol2 file.
         The lib file must exist in the working directory.
@@ -223,7 +221,7 @@ def calculate_charges(mol2file, outfile = None, libpath="."):
     """
     # Overwrite the mol2file
     outfile = outfile if outfile else mol2file+".lib.mol2"
-    libfile = os.path.join(libpath, "charges.lib")
+    libfile = lib_prefix + ".lib"
 
     # Load the charge library
     with open(libfile) as fp:
@@ -272,22 +270,22 @@ if __name__ == '__main__':
         help="Specify to build the charge.lib and charge.err files.")
 
     parser.add_argument(
-        '-l', '--libpath', default=".",
-        help="Directory to charges.json and charges.lib files.")
+        '-l', '--lib_prefix', default="charges",
+        help="Path prefix to charges.json and charges.lib files.")
 
     args = parser.parse_args()
 
     if args.build:
-        create_lib_files(args.libpath)
+        create_lib_files(args.lib_prefix)
 
     elif args.dir:
         # Update the charges.lib by parsing exisiting mol2 files.
-        create_charge_dir(args.dir, args.libpath)
+        create_charge_dir(args.dir, args.lib_prefix)
 
     elif args.add:
         # Calculate charges for a mol2 file using the charges.lib file.
-        create_charge_file(args.add, args.libpath)
+        create_charge_file(args.add, args.lib_prefix)
 
     elif args.mol2:
         # Calculate charges for a mol2 file using the charges.lib file.
-        calculate_charges(args.mol2, args.outmol2, args.libpath)
+        calculate_charges(args.mol2, args.outmol2, args.lib_prefix)
